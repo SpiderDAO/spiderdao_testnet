@@ -457,6 +457,9 @@ def parse_refstarted(ledx):
 dup_ref_started = []
 loop = asyncio.get_event_loop() #recheck
 async def send_referendum_started(ledx, ebh):
+
+    global dup_ref_started
+    
     dex = parse_refstarted(ledx)
     print("pub_channel_id", pub_channel_id)
     pub_channel = bot.get_channel(pub_channel_id)
@@ -498,6 +501,9 @@ def parse_refresult(ledx):
 
 dup_ref_results = []
 async def send_referendum_results(ledx, ebh):
+
+    global dup_ref_results
+
     dex = parse_refresult(ledx)
     pub_channel = bot.get_channel(pub_channel_id)
     ReferendumIndex = str(dex["ReferendumIndex"])

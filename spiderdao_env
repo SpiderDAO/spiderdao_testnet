@@ -1,0 +1,7 @@
+NODE_HOST=
+NODE_URL=ws://127.0.0.1:9945
+BOT_TOKEN=
+pub_channel_id=
+BOT_MODULES=Balances,Council,Bounties,Treasury
+SUDO_KEY=
+LAUNCH_PERIOD=

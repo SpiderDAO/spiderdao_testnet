@@ -60,7 +60,7 @@ Detailed Installation Instructions in [INSTALL.md](INSTALL.md)
     #OR 
     docker run -dit --env-file ./spiderdao_env -p 9945:9945 --name spiderdao_container spiderdaotestnet:latest /bin/bash
 
-    docker exec -it spiderdao_container /bin/bash -c "/home/spiderdao_testnet/spiderdao/spiderdao_testnet_start.sh"
+    docker exec -it spiderdao_container /bin/bash -c "/home/spiderdao_testnet/spiderdao_testnet/spiderdao_testnet_start.sh"
     
 # Credits
 ## Special thanks goes to 

@@ -19,7 +19,7 @@ The main changes from the upstream Democracy pallet are the duration of Launch p
 
 * Launch period : 7 hours for internal testing | 7 days for testnet release
 * Enactment period : 7 hours for internal testing | 7 days for testnet release
-* Voting period : 4 hours for internal testing| 4 days for testnet release
+* Voting period : 4 hours for internal testing | 4 days for testnet release
 * Constant deposit for all transaction set as 100 SPDR forced in the API
 * Release values are set in the Docker image
 

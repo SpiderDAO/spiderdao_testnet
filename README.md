@@ -61,7 +61,10 @@ Detailed Installation Instructions in [INSTALL.md](INSTALL.md)
     docker run -dit --env-file ./spiderdao_env -p 9945:9945 --name spiderdao_container spiderdaotestnet:latest /bin/bash
 
     docker exec -it spiderdao_container /bin/bash -c "/home/spiderdao_testnet/spiderdao_testnet/spiderdao_testnet_start.sh"
-    
+
+# Note About Democracy Pallet
+After careful consideration by the development team, we decided to go with using the runtime pallets route which suits our needs more than smart contracts, especially when we scale up. In addition, because of the availability of substrate runtime pallets, we can get flawless upgrades.
+
 # Credits
 ## Special thanks goes to 
 -  https://github.com/polkascan/ as we used both https://github.com/polkascan/py-scale-codec & https://github.com/polkascan/py-substrate-interface repos for our DAO framework development.

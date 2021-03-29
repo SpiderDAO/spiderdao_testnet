@@ -1,14 +1,17 @@
 import os
+import sys
 import json
 import chain_metadata
 
 BOT_MODULES = os.environ.get('BOT_MODULES')
+print(BOT_MODULES)
+if len(BOT_MODULES) == 0:
+    print("Set environment variables, \nsource ../spiderdao_env")
+    sys.exit(0)
+
 modules_filt = BOT_MODULES.split(",")
 
 data = chain_metadata.metadata
-
-# with open('../src/chain_modules.json') as json_file:
-#     data = json.load(json_file)
 
 #Chain modules in text format for help messages
 botcalls_mods = {}

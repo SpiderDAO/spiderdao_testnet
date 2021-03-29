@@ -82,6 +82,7 @@ class SpiderDaoInterface:
             if self.keypair is None:
                 return None
 
+        self._chain_modules = chain_modules
         self.encoded_proposal = None
         self.call_ascii = None
         self.tmp_refs = []
@@ -163,6 +164,7 @@ class SpiderDaoInterface:
         except:
             return None
 
+        self.keypair = n_keypair
         return n_keypair
 
     #Parses proposals with Input in Json format
@@ -330,13 +332,12 @@ class SpiderDaoInterface:
         if "error" in block_hash:
             return block_hash
 
-        #print("NOTE PREIMAGE", str(block_hash))
         return block_hash
 
     #Prepare proposal before submitting
     def pre_propose(self, arg, json=False):
 
-        print("ARG", arg)
+        print("ARGS", arg)
 
         self.substrate = self.substrate_connect()
         
@@ -470,7 +471,7 @@ class SpiderDaoInterface:
 
         self.substrate = self.substrate_connect()
 
-        ref_status = get_ref_info(ref_index)
+        ref_status = self.get_ref_info(ref_index)
         if ref_status["status"] != "Ongoing":
             err_dic = {}
             err_dic["error"] = "Referendum not found"
@@ -653,7 +654,6 @@ class SpiderDaoInterface:
         proposer = prop["proposer_addr"] if prop["proposer_discord_username"] == "" else prop["proposer_discord_username"]
         proposal_str = prop["proposal"]
 
-        print("ssssssssssssssssssssss", ref_idx, ref, prop)
         _, last_block = self.get_last_block()
         if "status" not in ref:
             ref_msg = ref_msg + " Not Found #2"

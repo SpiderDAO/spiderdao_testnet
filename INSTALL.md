@@ -130,7 +130,8 @@ Now SpiderDAO's Testnet dependencies are set and ready
     ./spiderdao-local-parachain.sh
 
 Find the Testnet on Polkadot Telemetry SpiderDAO_Testnet tab
-The Testnet can be accessed from https://polkadot.js.org/apps/?rpc=ws://127.0.0.1:9945
+The Testnet can be access local from local PolkadotJS http://localhost:3000/apps/?rpc=ws://127.0.0.1:9945
+Or if Nginx configured for external access (as described), the node can be accessed from https://polkadot.js.org/apps/?rpc=wss://YOURHOSTNAME
 
 ## Run Discord Bot and API only (Depends on the chain being up)
     cd scripts/

@@ -17,16 +17,16 @@ A callback function can be set to `chain_events_cb`, to listen to any kind of ch
 	spdrdao = SpiderDaoInterface(node_url="ws://127.0.0.1:9945", chain_events_cb=chain_events_cb)
 
 	async def chain_events_cb(event_index, lev, ebh):
-		#print(lev)
+
 		if event_index == "1e01": #'event_id': 'Tabled'
 			print("CALLED send_referendum_started")
-			msg_rep, ref_dic = await spdao.send_referendum_started(lev, ebh)
+			msg_rep, ref_dic = await spdrdao.send_referendum_started(lev, ebh)
 			print("ref_dic", msg_rep, ref_dic)
-			spdao.vote(ref_dic["ReferendumIndex"], "yes")
+			spdrdao.vote(ref_dic["ReferendumIndex"], "yes")
 		
 		if event_index == "1e04" or event_index == "1e05": #'event_id': 'Passed' or 'NotPassed'
 			print("CALLED show_referendum_result")
-			await spdao.show_referendum_result(lev, ebh)
+			await spdrdao.show_referendum_result(lev, ebh)
 			
 		return
 

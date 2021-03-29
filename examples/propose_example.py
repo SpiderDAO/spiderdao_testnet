@@ -5,7 +5,7 @@ sys.path.insert(0, '../src')
 from spiderdao import *
 
 #Change this line with every new run
-val = 12 
+val = 6 
 
 spdao = None
 
@@ -38,8 +38,7 @@ balance = spdao.get_balance(spdao.keypair.ss58_address)
 print("get_balance", balance)
 
 #import_wallet: Import exisiting wallet by seed phrase
-n_keypair = spdao.import_wallet("busy fluid trick sea parrot unhappy insane black bean aspect soda bubble")
-
+n_keypair = spdao.import_wallet("enlist wedding sail immune later seven evil country outer legal oyster surround")
 
 proposal = spdao.pre_propose(prop)
 print("pre_propose", proposal)
@@ -58,21 +57,28 @@ prop_index = proposal["PropIndex"]
 proposal = spdao.second(prop_index)
 print("second", proposal)
 
+"""
+If vote() called immediately here will fail.
+either wait for some time (time.sleep(X)) 
+OR
+wait for the event `Started` in `chain_events_cb()`
+"""
+
+
 ref_index = prop_index
 vote = spdao.vote(ref_index, "yes")
-print("vote_result", vote) #
+print("vote_result", vote)
 
 props = spdao.get_all_proposals()
 print("get_all_proposals", props)
 
-#ref_index = 144
 ref = spdao.get_ref_info(ref_index)
 print("get_ref_info", ref, type(ref))
 
 ref = spdao.get_all_refs()
 print("get_all_refs", ref, type(ref))
 
-balance = spdao.get_balance(n_keypair.ss58_address)
+balance = spdao.get_balance(spdao.keypair.ss58_address)
 print("get_balance", balance)
 
 props = spdao.get_all_proposals()

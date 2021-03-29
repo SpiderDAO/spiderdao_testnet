@@ -11,7 +11,7 @@ SpiderDAO Testnet is based on Cumulus Rococo Parachain setup, with modifications
 ## Version `1.7`
 
 ## Main components:
-[SpiderDAO Architecture](imgs/diagrams.md)
+[SpiderDAO Architecture](imgs/diagrams.md#spiderdao-architecture)
 
 SpiderDAO Testnet based on Cumulus/Rococo Parachain with 2 collators and 2 full nodes, with Democracy pallet enabled, users can join the testnet by creating a wallet using the SpiderConnect Router Dashboard or using the Discord bot, The Router Dashboard is communicating with the testnet through SpiderDAO API, because currently the router hardware has limited storage. A full feature fledged wallet will be hosted on the SpiderConnect router new platforms in the future.
 
@@ -19,12 +19,12 @@ The main changes from the upstream Democracy pallet are the duration of Launch p
 
 * Launch period : 7 hours for internal testing | 7 days for testnet release
 * Enactment period : 7 hours for internal testing | 7 days for testnet release
-* Voting period : 4 hours for internal testing| 4 days for testnet release
-* Constant deposit for all transaction set as 100 SPDR
+* Voting period : 4 hours for internal testing | 4 days for testnet release
+* Constant deposit for all transaction set as 100 SPDR forced in the API
 * Release values are set in the Docker image
 
 ## SpiderDAO Governance Flowchart
-[SpiderDAO Flowchart](imgs/diagrams.md)
+[SpiderDAO Flowchart](imgs/diagrams.md#dao-flowchart)
 
 Detailed Installation Instructions in [INSTALL.md](INSTALL.md)
 
@@ -61,7 +61,10 @@ Detailed Installation Instructions in [INSTALL.md](INSTALL.md)
     docker run -dit --env-file ./spiderdao_env -p 9945:9945 --name spiderdao_container spiderdaotestnet:latest /bin/bash
 
     docker exec -it spiderdao_container /bin/bash -c "/home/spiderdao_testnet/spiderdao_testnet/spiderdao_testnet_start.sh"
-    
+
+# Note About Democracy Pallet
+After careful consideration by the development team, we decided to go with using the runtime pallets route which suits our needs more than smart contracts, especially when we scale up. In addition, because of the availability of substrate runtime pallets, we can get flawless upgrades.
+
 # Credits
 ## Special thanks goes to 
 -  https://github.com/polkascan/ as we used both https://github.com/polkascan/py-scale-codec & https://github.com/polkascan/py-substrate-interface repos for our DAO framework development.

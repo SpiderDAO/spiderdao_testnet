@@ -42,6 +42,8 @@
 ## Docker image load from archive
 If Docker image provided as an archived image
 
+    #Set environment variables in `spiderdao_env` or get the default file from this repo [spiderdao_env](https://github.com/SpiderDAO/spiderdao_testnet/blob/main/spiderdao_env)
+
     docker load -i spiderdaotestnet_docker_image.tar.gz
     docker run -dit --env-file ./spiderdao_env -p 80:80 -p 443:443 -p 30333:30333 -p 9945:9945 -p 9933:9933 -p 55551:55551 -v nginxconf:/etc/nginx/ -v certs:/etc/ssl -v spiderdao_testnet:/home/spiderdao_testnet --name spiderdao_container spiderdaotestnet:latest /bin/bash
     docker exec -it spiderdao_container /bin/bash -c "/home/spiderdao_testnet/spiderdao_testnet/spiderdao_testnet_start.sh"

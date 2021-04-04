@@ -181,19 +181,13 @@ class SpiderDaoInterface:
         if call_id not in chain_modules[module_name]:
             print("Call not found")
             return {"error" : "call_id not found"}
-        
-        # if (len(args) - 2) != len(chain_modules[module_name][call_id]):
-        #     print("Wrong args")
-        #CHANGE
-        #     return -1
-        
 
         #Verify passed call parameters
         params = darg["call_params"]
         i = 2
         #[{'name': 'dest', 'type': 'LookupSource'}, {'name': 'value', 'type': 'Compact<Balance>'}]
         print("CLIENT PARAMS", params)
-        for ar in chain_modules[module_name][call_id]:
+        for ar in chain_modules[module_name][call_id]["args"]:
             if ar["name"] not in params:
                 return {"error" : "call_params error"}
 
@@ -233,7 +227,7 @@ class SpiderDaoInterface:
             print("Call not found")
             return {"error" : f"call_id not found {call_id}"}
         
-        if (len(args) - 2) != len(chain_modules[module_name][call_id]):
+        if (len(args) - 2) != len(chain_modules[module_name][call_id]["args"]):
             print("Wrong args")
             return {"error" : "call_params error"}
         
@@ -241,7 +235,7 @@ class SpiderDaoInterface:
         i = 2
         #Verify passed call parameters
         #mapping between Discord requests and chain modules calls
-        for ar in chain_modules[module_name][call_id]:
+        for ar in chain_modules[module_name][call_id]["args"]:
             name = ar["name"]
             val = args[i]
             if "balance" in ar["type"].lower():
@@ -332,12 +326,13 @@ class SpiderDaoInterface:
         if "error" in block_hash:
             return block_hash
 
+        #print("NOTE PREIMAGE", str(block_hash))
         return block_hash
 
     #Prepare proposal before submitting
     def pre_propose(self, arg, json=False):
 
-        print("ARGS", arg)
+        print("ARG", arg)
 
         self.substrate = self.substrate_connect()
         
@@ -455,8 +450,8 @@ class SpiderDaoInterface:
                 call_module='Democracy',
                 call_function='second',
                 call_params={
-                'proposal': prop_idx,
-                'seconds_upper_bound' : 6,
+                    'proposal': prop_idx,
+                    'seconds_upper_bound' : 6,
             }
         )
 
@@ -587,7 +582,6 @@ class SpiderDaoInterface:
             params = call["call_args"]
             params_str = ""
 
-            #for ar in chain_modules[module_name][call_id]:
             for p in params:
                     #return {"error" : "Preimage decoding call_params error"}
                 name = p["name"]
@@ -644,11 +638,14 @@ class SpiderDaoInterface:
         #{'status': 'Finished', 'approved': 'no', 'end_block': 27250}
         #{'status': 'Ongoing', 'end_block': 23300, 'proposal': '0x9d82789583cecb141eff0a86420cd088a0526d0cea40dc6c77e42cfe0b556e3d', 'ayes': 1, 'nays': 0, 'total_votes': 1}
 
+        ref_json = {}
+
         prop_idx = ref_idx
         #if prop_index not in proposal_dict:
         if not proposals_db.exists(prop_idx):
-            ref_msg = ref_msg + " Not Found #1"
-            return ref_msg
+            #ref_msg = ref_msg + " Not Found #1"
+            #ref_json["ref_msg"] = ref_msg
+            return None
 
         prop = proposals_db.get(prop_idx)
         proposer = prop["proposer_addr"] if prop["proposer_discord_username"] == "" else prop["proposer_discord_username"]
@@ -656,7 +653,9 @@ class SpiderDaoInterface:
 
         _, last_block = self.get_last_block()
         if "status" not in ref:
-            ref_msg = ref_msg + " Not Found #2"
+            #ref_msg = ref_msg + " Not Found #2"
+            #ref_json["ref_msg"] = ref_msg
+            return None
 
         if ref["status"] == "Finished":
             #Referendum `1` has ended {X time ago}, number of voters {}, results X% Approved/Not Approved
@@ -674,6 +673,13 @@ class SpiderDaoInterface:
 
             ref_msg = ref_msg + f" `{tally}`, `{status}` {end_str}.\n \
                 Proposed by `{proposer}`, Proposal `{proposal_str}`"
+
+            ref_json["status"] = status
+            ref_json["end_str"] = end_str
+            ref_json["tally"] = tally
+            ref_json["ref_msg"] = ref_msg
+            ref_json["proposer"] = proposer
+            ref_json["proposal_str"] = proposal_str
             
         elif ref["status"] == "Ongoing":
             #Referendum `1` is ongoing will end in {X time}, number of voters {}, results X% Approved/Not Approved
@@ -693,11 +699,21 @@ class SpiderDaoInterface:
 
             ref_msg = ref_msg + f" {status} will end {end_str}, Total voters `{n_voters}`, `{current_perc}%` Approved so far.\n \
                 Proposed by `{proposer}`, Proposal `{proposal_str}`"
+
+            ref_json["status"] = status
+            ref_json["end_str"] = end_str
+            ref_json["voters"] = n_voters
+            ref_json["ref_msg"] = ref_msg
+            ref_json["proposer"] = proposer
+            ref_json["proposal_str"] = proposal_str
+            
         else:
             ref_msg = ref_msg + " Not Found #3"
+            print(ref_msg)
+            ref_json = None
 
-        self.tmp_refs.append(ref_msg)
-        return ref_msg
+        #self.tmp_refs.append(ref_msg)
+        return ref_json #ref_msg
 
     #Get all referendums in friendly format
     def get_all_refs(self):
@@ -715,19 +731,18 @@ class SpiderDaoInterface:
             return []
 
         refs_list = []
-
         ref_th = []
-        #self.chain_listen_thread = threading.Thread(target=self.get_ref_status, args=(str(r),))
-        #self.chain_listen_thread.start()
 
         for r in range(refs_cnt,-1,-1):
-            ref_msg = self.get_ref_status(str(r))
-
-        self.tmp_refs = sorted(self.tmp_refs[:5])
-        for ref_msg in self.tmp_refs:
-            if "Not Found" in ref_msg:
+            ref_json = self.get_ref_status(str(r))
+            if ref_json is None:
                 continue
-            refs_list.append(ref_msg)
+
+            self.tmp_refs.append(ref_json)
+
+        #self.tmp_refs = self.tmp_refs[:5]
+        for ref_json in self.tmp_refs[:5]:
+            refs_list.append(ref_json)
 
         if len(refs_list) > 0:
             return refs_list
@@ -770,14 +785,20 @@ class SpiderDaoInterface:
         
         prop_idx = str(prop_idx)
         if not proposals_db.exists(prop_idx):
-            return "Proposal Not Found"
+            return None
 
         prop = proposals_db.get(prop_idx)
         proposer = prop["proposer_addr"] if prop["proposer_discord_username"] == "" else prop["proposer_discord_username"]
         proposal_str = prop["proposal"]
         prop_msg = f" 📝 Proposal Index `{prop_idx}`, Proposed by `{proposer}`, Proposal `{proposal_str}`"
         
-        return prop_msg
+        prop_json = {}
+        prop_json["prop_idx"] = prop_idx
+        prop_json["proposer"] = proposer
+        prop_json["proposal_str"] = proposal_str
+        prop_json["prop_msg"] = prop_msg
+
+        return prop_json
 
     def get_all_proposals(self):
 
@@ -795,7 +816,7 @@ class SpiderDaoInterface:
         for prop_idx in list(s_props)[-5:]: 
 
             prop_msg = self.get_proposal(prop_idx)
-            if "Not Found" in prop_msg:
+            if prop_msg is None:
                 continue
 
             proposals_list.append(prop_msg)

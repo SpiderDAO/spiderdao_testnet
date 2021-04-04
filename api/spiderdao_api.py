@@ -613,14 +613,20 @@ def get_ref():
             return jsonify(error_dict)
 
         ref_list = []
+        ret_ref_list = []
         if "ref_index" in jso and int(jso["ref_index"]) >= 0:
             ref = spdr.get_ref_status(jso["ref_index"])
-            ref_list.append(ref)
+            if ref is not None:
+                ret_ref_list.append(ref)
         else:
             ref_list = spdr.get_all_refs()
+            for r in ref_list:
+                ret_ref_list.append(r)
+
+        ref_list = ret_ref_list
 
         if len(ref_list) == 0:
-            ref_err = ["No Referendums Available"]
+            ref_err = ["Referendum Not Found"]
             return jsonify(ref_err)
         
         return jsonify(ref_list)
@@ -761,16 +767,23 @@ def get_props():
             return jsonify(error_dict)
 
         prop_list = []
+        ret_prop_list = []
         if "prop_index" in jso and int(jso["prop_index"]) >= 0:
             prop = spdr.get_proposal(jso["prop_index"])
-            prop_list.append(prop)
+            if prop is not None:
+                prop_list.append(prop)
         else:
             prop_list = spdr.get_all_proposals()
+            for p in prop_list:
+                if p is not None:
+                    ret_prop_list.append(p)
 
+        prop_list = ret_prop_list
+        
         if len(prop_list) == 0:
             prop_err = ["No Proposals Available"]
             return jsonify(prop_err)
-
+        
         return jsonify(prop_list)
     
     return jsonify(error_dict)
@@ -808,7 +821,7 @@ def get_chain_modules():
 
     Response
     {
-        #A Json object with the chain modules supported in the Testnet
+        #A Json object with the chain modules and functions supported in the Testnet and their documentation
     }
     """
 
@@ -835,5 +848,5 @@ def get_chain_modules():
 
 if __name__ == '__main__':
 
-    app.run(host="127.0.0.1", port='55551', debug=False, threaded=True)
+    app.run(host="127.0.0.1", port='55551', debug=True, threaded=True)
     print("SpiderDAO API start")

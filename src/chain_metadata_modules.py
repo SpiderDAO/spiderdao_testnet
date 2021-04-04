@@ -5,7 +5,7 @@ import chain_metadata
 
 BOT_MODULES = os.environ.get('BOT_MODULES')
 print(BOT_MODULES)
-if len(BOT_MODULES) == 0:
+if BOT_MODULES is None or len(BOT_MODULES) == 0:
     print("Set environment variables, \nsource ../spiderdao_env")
     sys.exit(0)
 
@@ -47,5 +47,7 @@ for d in data:
             sargs = f'({", ".join(mrgs)})'
             modd = f"⚡️ {d[c]} {sargs} \t  💎 Help: {doc}" 
             botcalls_mods[modid].append(modd)
-            chain_modules[modid][d[c]] = jrgs
+            chain_modules[modid][d[c]] = {}
+            chain_modules[modid][d[c]]["args"] = jrgs
+            chain_modules[modid][d[c]]["doc"] = d["documentation"]
 

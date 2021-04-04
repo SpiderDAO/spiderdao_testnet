@@ -116,70 +116,70 @@ print("import_wallet Resp", resp)
 error_check(resp)
 
 
-"""
-Pre-propose:
-    - prepare proposal and confirm submission
-"""
-data["pre_propose"]["phrase"] = phrase
-data["pre_propose"]["call_params"]["value"] = 405 # <-- change this value for every test like make it 401, 402..etc
-resp = perform_req("pre_propose")
-print("pre_propose Resp", resp)
-error_check(resp)
+# """
+# Pre-propose:
+#     - prepare proposal and confirm submission
+# """
+# data["pre_propose"]["phrase"] = phrase
+# data["pre_propose"]["call_params"]["value"] = 416 # <-- change this value for every test like make it 401, 402..etc
+# resp = perform_req("pre_propose")
+# print("pre_propose Resp", resp)
+# error_check(resp)
 
-"""
-Propose:
-    - create actual proposal from the preimage_hash returned from pre_propose
-"""
-data["propose"]["phrase"] = phrase
-data["propose"]["preimage_hash"] = resp["preimage_hash"]
-resp = perform_req("propose")
-print("propose Resp", resp)
-error_check(resp)
+# """
+# Propose:
+#     - create actual proposal from the preimage_hash returned from pre_propose
+# """
+# data["propose"]["phrase"] = phrase
+# data["propose"]["preimage_hash"] = resp["preimage_hash"]
+# resp = perform_req("propose")
+# print("propose Resp", resp)
+# error_check(resp)
 
-"""
-Second:
-    - Seconds a proposal by prop_index (Proposal Index) returned from /propose
-"""
-prop_index = resp["PropIndex"]
-data["second"]["phrase"] = phrase
-data["second"]["prop_index"] = prop_index
-resp = perform_req("second")
-print("second Resp", resp)
-error_check(resp)
+# """
+# Second:
+#     - Seconds a proposal by prop_index (Proposal Index) returned from /propose
+# """
+# prop_index = resp["PropIndex"]
+# data["second"]["phrase"] = phrase
+# data["second"]["prop_index"] = prop_index
+# resp = perform_req("second")
+# print("second Resp", resp)
+# #error_check(resp)
 
-"""
-Get Props:
-    - Get the proposal that was just created in the test
-"""
-data["get_props"]["phrase"] = phrase
-data["get_props"]["prop_index"] = prop_index
-resp = perform_req("get_props")
-print("get_props Resp", resp)
-error_check(resp)
+# """
+# Get Props:
+#     - Get the proposal that was just created in the test
+# """
+# data["get_props"]["phrase"] = phrase
+# data["get_props"]["prop_index"] = prop_index
+# resp = perform_req("get_props")
+# print("get_props Resp", resp)
+# error_check(resp)
 
-"""
-Basic test to wait for the Referendum to be launched from the created proposal, loops exits when Referendum Starts
-"""
-data["get_ref"]["phrase"] = phrase
-data["get_ref"]["ref_index"] = prop_index
-while True:
-    time.sleep(10)
-    resp = perform_req("get_ref")
-    print("get_ref Resp", resp)
-    error_check(resp)
-    resps = " ".join(resp)
-    if "Not Found" not in resps:
-        break
+# """
+# Basic test to wait for the Referendum to be launched from the created proposal, loops exits when Referendum Starts
+# """
+# data["get_ref"]["phrase"] = phrase
+# data["get_ref"]["ref_index"] = prop_index
+# while True:
+#     time.sleep(10)
+#     resp = perform_req("get_ref")
+#     print("get_ref Resp", resp)
+#     error_check(resp)
+#     resps = " ".join(resp)
+#     if "Not Found" not in resps:
+#         break
 
-"""
-Vote:
-    - Vote on the just launched Referendum
-"""
-data["vote"]["phrase"] = phrase
-data["vote"]["ref_index"] = prop_index
-resp = perform_req("vote")
-print("vote Resp", resp)
-error_check(resp)
+# """
+# Vote:
+#     - Vote on the just launched Referendum
+# """
+# data["vote"]["phrase"] = phrase
+# data["vote"]["ref_index"] = prop_index
+# resp = perform_req("vote")
+# print("vote Resp", resp)
+# error_check(resp)
 
 """
 Get Ref:

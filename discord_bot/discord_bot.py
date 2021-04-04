@@ -382,18 +382,26 @@ async def bot_getrefinfo(ctx, *arg):
 
     print(f"{ctx.author}: REFINFO", ref_idx, _all)
 
+    ret_ref_list = []
     async with ctx.typing():
         if _all:
             ref_list = spdr.get_all_refs()
             if len(ref_list) == 0:
                 return ref_msg
 
-            ref_msg = "\n\n".join(ref_list)
+            for r in ref_list:
+                ret_ref_list.append(r["ref_msg"])
+
+            ref_msg = "\n\n".join(ret_ref_list)
         else:
             ref_msg = spdr.get_ref_status(ref_idx)
+            if ref_msg is None:
+                ref_msg = f"🎗 Referendum `{ref_idx}` is Not Found"
+            else:
+                ref_msg = ref_msg["ref_msg"]
 
-        print("REFMSG", ref_msg)
-        await ctx.send(ref_msg)
+    print("REFMSG", ref_msg)
+    await ctx.send(ref_msg)
 
 @bot.command(name='proposals', help='Get Proposals')
 async def bot_getprops(ctx, *arg):
@@ -402,31 +410,38 @@ async def bot_getprops(ctx, *arg):
         await ctx.send("No Wallet found, Create/Import Wallet `!wallet create|import`")
         return
 
+    props_msg = "Proposal Not Found"
     async with ctx.typing():
         _all = True
         prop_idx = ""
-        props_msg = "Proposal Not Found"
+        
 
         if len(arg) == 1:
             _all = False
             prop_idx = str(arg[0])
 
-        spdr = SpiderDaoInterface(keypair=bot_users[ctx.author]["keypair"]) #RECHECK
+        spdr = SpiderDaoInterface(keypair=bot_users[ctx.author]["keypair"])
 
         print(f"{ctx.author}: PROPINFO", prop_idx, _all)
 
         prop = None
+        ret_prop_list = []
         if _all:
             props_list = spdr.get_all_proposals()
             if len(props_list) == 0:
                 await ctx.send(props_msg)
                 return
 
-            props_msg = "\n\n".join(props_list)
+            for p in props_list:
+                ret_prop_list.append(p["prop_msg"])
+
+            props_msg = "\n\n".join(ret_prop_list)
         else:
             props_msg = spdr.get_proposal(prop_idx)
+            if props_msg is not None:
+                props_msg = props_msg["prop_msg"]
 
-        await ctx.send(props_msg)
+    await ctx.send(props_msg)
 
 def parse_refstarted(ledx):
 

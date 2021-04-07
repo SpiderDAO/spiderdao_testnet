@@ -60,7 +60,8 @@ democracy_commands = [
     "!vote [referendum index] [yes|no]", 
     "!balance [address]", 
     "!ref [referendum index]", 
-    "!proposals"
+    "!proposals [proposal index]",
+    "!send [address] [value]"
 ]
 
 @bot.event

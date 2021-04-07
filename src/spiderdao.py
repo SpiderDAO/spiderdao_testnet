@@ -147,7 +147,7 @@ class SpiderDaoInterface:
 
         ret_dic = {}
         try:
-            value = int(value)
+            value = float(value)
         except:
             ret_dic["error"] = "Wrong value: {}".format(value)
             return ret_dic

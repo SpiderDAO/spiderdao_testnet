@@ -72,6 +72,13 @@ data = {
         'spider_id': 'xxxx',
         'phrase' : phrase
     },
+    'send_balance' : {
+        'request_id' : 'send_balance',
+        'spider_id': 'xxxx',
+        'phrase' : phrase,
+        'address' : '5E9W3GkF3BhjqVTadjCr87Urh6WkJKEdVSkg9qfLEjZdkCT6',
+        'value' : "123"
+    }
 }
 
 # prop_index == referendum index
@@ -115,13 +122,21 @@ resp = perform_req("import_wallet")
 print("import_wallet Resp", resp)
 error_check(resp)
 
+"""
+Send Balance:
+    - Send balance to other users
+"""
+data["send_balance"]["phrase"] = phrase
+resp = perform_req("send_balance")
+print("send_balance Resp", resp)
+error_check(resp)
 
 """
 Pre-propose:
     - prepare proposal and confirm submission
 """
 data["pre_propose"]["phrase"] = phrase
-data["pre_propose"]["call_params"]["value"] = 416 # <-- change this value for every test like make it 401, 402..etc
+data["pre_propose"]["call_params"]["value"] = 420 # <-- change this value for every test like make it 401, 402..etc
 resp = perform_req("pre_propose")
 print("pre_propose Resp", resp)
 error_check(resp)
@@ -167,7 +182,7 @@ while True:
     resp = perform_req("get_ref")
     print("get_ref Resp", resp)
     error_check(resp)
-    resps = " ".join(resp)
+    resps = " ".join(str(resp))
     if "Not Found" not in resps:
         break
 

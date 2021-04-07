@@ -142,6 +142,43 @@ class SpiderDaoInterface:
 
         return balance
 
+    #Send balance
+    def send_balance(self, addr, value):
+
+        ret_dic = {}
+        try:
+            value = int(value)
+        except:
+            ret_dic["error"] = "Wrong value: {}".format(value)
+            return ret_dic
+
+        try:
+            #keypair = Keypair.create_from_uri("//Alice")
+            call = self.substrate.compose_call(
+                call_module='Balances',
+                call_function='transfer',
+                call_params={
+                'dest': addr,
+                'value': value * CHAIN_DEC
+            })
+            
+            extrinsic = self.substrate.create_signed_extrinsic(
+                        call=call,
+                        keypair=self.keypair,
+                        era={'period': 64})
+
+            reply = self.substrate.submit_extrinsic(extrinsic, wait_for_inclusion=True, wait_for_finalization=False)
+            extrinsic_hash = str(reply['extrinsic_hash'])
+            ret_dic["success"] = "Balance of {} SPDR Transferred to {}".format(value, addr)
+            ret_dic["block_hash"] = extrinsic_hash
+            return ret_dic
+        except Exception as e:
+            ret_dic["error"] = "Balance transfer error: {}".format(str(e))
+            return ret_dic
+
+        ret_dic["error"] = "Something went wrong while transferring the balance" 
+        return ret_dic
+
     #Create wallet
     def create_wallet(self):
             

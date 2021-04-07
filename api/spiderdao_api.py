@@ -846,7 +846,74 @@ def get_chain_modules():
     return jsonify(error_dict)
 
 
+send_balance_schema  = {
+    'spider_id': 
+    {
+        'type': 'string', 
+        'required': True
+    },
+    'phrase':
+    {
+        'type': 'string', 
+        'required': True
+    },
+    'request_id':
+    {
+        'type': 'string', 
+        'required': False
+    },
+    'address':
+    {
+        'type': 'string', 
+        'required': True
+    },
+    'value':
+    {
+        'type': 'string', 
+        'required': True
+    }
+}
+
+@app.route('/send_balance', methods = ['POST', 'GET'])
+def send_balance():
+
+    """
+    /send_balance
+    description: Send balance to SpiderDAO user
+    
+    Request payload
+    {
+        'spider_id' : 'xxxx',
+        'phrase' : '...'
+        'address' : '...',
+        'value' : 123
+    }
+
+    """
+
+    jso = {}
+    if request.method == 'POST':
+        jso = request.json
+
+        v = Validator(send_balance_schema)
+        valid = v.validate(jso)
+        if not valid:
+            error_dict["reason"] = "wrong arguments"
+            error_dict["send_balance"] = send_balance_schema
+            return jsonify(error_dict)
+
+        spdr, err_msg = check_auth(jso)
+        if spdr is None:
+            error_dict["reason"] = err_msg
+            return jsonify(error_dict)
+            
+        balance = spdr.send_balance(jso["address"], jso["value"])
+
+        return jsonify(balance)
+    
+    return jsonify(error_dict)
+
 if __name__ == '__main__':
 
-    app.run(host="127.0.0.1", port='55551', debug=True, threaded=True)
+    app.run(host="127.0.0.1", port='55551', debug=False, threaded=True)
     print("SpiderDAO API start")

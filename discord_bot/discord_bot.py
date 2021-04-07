@@ -211,6 +211,35 @@ async def bot_help(ctx, *arg):
 
     return
 
+@bot.command(name='send', help='Send balance to other SpiderDAO testnet users')
+async def send_balance(ctx, *arg):
+    
+    if len(arg) != 2:
+        await ctx.send(f"!send [address] [value], e.g !send 5CiPPseXPECbkjWCa6MnjNokrgYjMqmKndv2rSnekmSK2DjL 10")
+        return
+
+    spdr = SpiderDaoInterface(keypair=bot_users[ctx.author]["keypair"])
+    address = str(arg[0])
+    value = str(arg[1])
+
+    balance = {}
+    bot_msg = ""
+    try:
+        balance = spdr.send_balance(address, value)
+    except Exception as e:
+        print("Balance sending error", e)
+        await ctx.send(f"!send [address] [value], e.g !send 5CiPPseXPECbkjWCa6MnjNokrgYjMqmKndv2rSnekmSK2DjL 10")
+        return
+
+    if "error" in balance:
+        bot_msg = "Balance sending error: " + str(balance["error"])
+        await ctx.send(bot_msg)
+    else:
+       bot_msg = "Balance Sent Successfully: " + str(balance["success"]) + " Block Hash: " + str(balance["block_hash"])
+       await ctx.send(bot_msg)
+
+    return
+
 
 @bot.command(name='propose', help='Start a proposal')
 async def bot_propose(ctx, *arg):

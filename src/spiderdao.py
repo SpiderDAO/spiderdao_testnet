@@ -797,10 +797,14 @@ class SpiderDaoInterface:
             params=None
         )
 
+        if props is None:
+            d_props["current_proposals"] = 0
+            return d_props
+            
         props = ast.literal_eval(str(props))
         print("Proposals", props, type(props))
 
-        if props in None or len(props) == 0:
+        if props is None or len(props) == 0:
             d_props["current_proposals"] = 0
             return d_props
 

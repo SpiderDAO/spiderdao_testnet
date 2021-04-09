@@ -8,7 +8,7 @@ import datetime
 import pickledb
 
 from scalecodec.type_registry import load_type_registry_preset
-from scalecodec.updater import update_type_registries
+#from scalecodec.updater import update_type_registries
 from substrateinterface import Keypair, SubstrateInterface
 
 import chain_metadata_modules
@@ -95,7 +95,7 @@ class SpiderDaoInterface:
                     type_registry_preset="westend"
         )
 
-        self.substrate.update_type_registry_presets()
+        #self.substrate.update_type_registry_presets()
         return self.substrate
 
     #Helper function to set a specific user's balance automatically
@@ -129,8 +129,8 @@ class SpiderDaoInterface:
         print("get_balance of", addr)
         balance = 0
         try:
-            self.substrate = self.substrate_connect()
-            account_info = self.substrate.query(
+            substrate = self.substrate_connect()
+            account_info = substrate.query(
                 module='System',
                 storage_function='Account',
                 params=[addr]
@@ -828,7 +828,14 @@ class SpiderDaoInterface:
         proposer = prop["proposer_addr"] if prop["proposer_discord_username"] == "" else prop["proposer_discord_username"]
         proposal_str = prop["proposal"]
         prop_msg = f" 📝 Proposal Index `{prop_idx}`, Proposed by `{proposer}`, Proposal `{proposal_str}`"
-        
+
+# 📇 Proposal Index 30
+# 👤 Proposed by: 5HMpBMX8PGwNpzo3XAwD1FcqiB69XJhdbhJyt7ZyvgLeF7Am
+# 🧩 Proposal Module: Balances
+# 🧮 Module function: transfer
+# ⌨️ Function parameters: dest:5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+# 🔢 Value:59.0
+
         prop_json = {}
         prop_json["prop_idx"] = prop_idx
         prop_json["proposer"] = proposer
@@ -977,10 +984,10 @@ class SpiderDaoChain:
         self.substrate = SubstrateInterface(
                     url=self.node_url,
                     ss58_format=42,
-                    type_registry_preset="westend"
+                    type_registry_preset='westend',
         )
 
-        self.substrate.update_type_registry_presets()
+        #self.substrate.update_type_registry_presets()
         return self.substrate
 
     async def event_process(self, lev, ebh, cb_ch):

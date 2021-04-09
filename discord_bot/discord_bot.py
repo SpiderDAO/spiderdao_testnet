@@ -417,7 +417,8 @@ async def bot_getrefinfo(ctx, *arg):
         if _all:
             ref_list = spdr.get_all_refs()
             if len(ref_list) == 0:
-                return ref_msg
+                await ctx.send(ref_msg)
+                return
 
             for r in ref_list:
                 ret_ref_list.append(r["ref_msg"])

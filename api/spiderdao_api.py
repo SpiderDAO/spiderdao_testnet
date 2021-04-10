@@ -886,7 +886,7 @@ def send_balance():
         'spider_id' : 'xxxx',
         'phrase' : '...'
         'address' : '...',
-        'value' : "123"
+        'value' : '123'
     }
 
     """

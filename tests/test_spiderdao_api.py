@@ -136,7 +136,7 @@ Pre-propose:
     - prepare proposal and confirm submission
 """
 data["pre_propose"]["phrase"] = phrase
-data["pre_propose"]["call_params"]["value"] = 420 # <-- change this value for every test like make it 401, 402..etc
+data["pre_propose"]["call_params"]["value"] = 606 # <-- change this value for every test like make it 401, 402..etc
 resp = perform_req("pre_propose")
 print("pre_propose Resp", resp)
 error_check(resp)
@@ -182,7 +182,8 @@ while True:
     resp = perform_req("get_ref")
     print("get_ref Resp", resp)
     error_check(resp)
-    resps = " ".join(str(resp))
+    resps = str(resp[0])
+    print(resps)
     if "Not Found" not in resps:
         break
 

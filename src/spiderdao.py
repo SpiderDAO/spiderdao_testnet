@@ -25,6 +25,7 @@ CHAIN_DEC = 10**12
 # Values from ../spiderdao_env
 NODE_URL = os.environ.get('NODE_URL')
 launch_period = os.environ.get('LAUNCH_PERIOD')
+SUDO_KEY = os.environ.get('SUDO_KEY')
 
 #Keep track of last block number
 g_last_block_number = 0
@@ -102,7 +103,7 @@ class SpiderDaoInterface:
     def set_balance(self, addr):
 
         try:
-            #keypair = Keypair.create_from_private_key(SUDO_KEY)
+            #keypair = Keypair.create_from_mnemonic(SUDO_KEY)
             keypair = Keypair.create_from_uri("//Alice")
             call = self.substrate.compose_call(
                 call_module='Balances',
@@ -353,7 +354,7 @@ class SpiderDaoInterface:
         self.substrate = self.substrate_connect()
         call = self.substrate.compose_call(
                 call_module='Democracy',
-                call_function='note_preimage', #note_imminent_preimage
+                call_function='note_preimage',
                 call_params={
                 'encoded_proposal': encoded_proposal
             }
@@ -639,9 +640,15 @@ class SpiderDaoInterface:
             ret_d["module_name"] = module_name
             ret_d["call_id"] = call_id
             ret_d["params"] = params
-            ret_d["call_str"] = f"Module: {module_name}, Module function: {call_id}, Function parameters: {params_str}"
+            ret_d["call_str"] = f"Module: {module_name}\n🧮 Module function: {call_id}\n⌨️ Function parameters: {params_str}"
             ret_d["proposer"] = d_preimage["Available"]["provider"]
             ret_d["deposit"] = float(d_preimage["Available"]["deposit"])/ CHAIN_DEC
+# 📇 Proposal Index 30
+# 👤 Proposed by: 5HMpBMX8PGwNpzo3XAwD1FcqiB69XJhdbhJyt7ZyvgLeF7Am
+# 🧩 Proposal Module: Balances
+# 🧮 Module function: transfer
+# ⌨️ Function parameters: dest:5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+# 🔢 Value:59.0
 
         except Exception as e:
             print("Error decoding proposal hash", str(e))
@@ -717,6 +724,7 @@ class SpiderDaoInterface:
             ref_json["ref_msg"] = ref_msg
             ref_json["proposer"] = proposer
             ref_json["proposal_str"] = proposal_str
+            ref_json["ref_idx"] = str(ref_idx)
             
         elif ref["status"] == "Ongoing":
             #Referendum `1` is ongoing will end in {X time}, number of voters {}, results X% Approved/Not Approved
@@ -743,6 +751,7 @@ class SpiderDaoInterface:
             ref_json["ref_msg"] = ref_msg
             ref_json["proposer"] = proposer
             ref_json["proposal_str"] = proposal_str
+            ref_json["ref_idx"] = str(ref_idx)
             
         else:
             ref_msg = ref_msg + " Not Found #3"
@@ -831,14 +840,10 @@ class SpiderDaoInterface:
         prop = proposals_db.get(prop_idx)
         proposer = prop["proposer_addr"] if prop["proposer_discord_username"] == "" else prop["proposer_discord_username"]
         proposal_str = prop["proposal"]
-        prop_msg = f" 📝 Proposal Index `{prop_idx}`, Proposed by `{proposer}`, Proposal `{proposal_str}`"
-
-# 📇 Proposal Index 30
-# 👤 Proposed by: 5HMpBMX8PGwNpzo3XAwD1FcqiB69XJhdbhJyt7ZyvgLeF7Am
-# 🧩 Proposal Module: Balances
-# 🧮 Module function: transfer
-# ⌨️ Function parameters: dest:5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
-# 🔢 Value:59.0
+        prop_msg = f"\n \
+📇 Proposal Index {prop_idx}\n \
+👤 Proposed by: {proposer}\n \
+🧩 Proposal {proposal_str}\n"
 
         prop_json = {}
         prop_json["prop_idx"] = prop_idx

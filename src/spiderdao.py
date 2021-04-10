@@ -57,6 +57,9 @@ class SpiderDaoInterface:
         - wait_for_finalization is True by default, otherwise some extrinsics fail (like vote)
         - chain_events_cb: callback function to receive chain events
         """
+
+        self.substrate = None
+
         if node_url is None:
             self.node_url = NODE_URL
         else:
@@ -131,6 +134,7 @@ class SpiderDaoInterface:
         balance = 0
         try:
             substrate = self.substrate_connect()
+
             account_info = substrate.query(
                 module='System',
                 storage_function='Account',
@@ -554,6 +558,8 @@ class SpiderDaoInterface:
         dref = {}
 
         try:
+            self.substrate = self.substrate_connect()
+
             rref = self.substrate.query(
                 module='Democracy',
                 storage_function='ReferendumInfoOf',
@@ -592,6 +598,8 @@ class SpiderDaoInterface:
 
     #Get proposal info from proposal_hash in simple format
     def get_proposal_info(self, proposal_hash):
+
+        self.substrate = self.substrate_connect()
         preimage = self.substrate.query(
             module='Democracy',
             storage_function='Preimages',
@@ -764,6 +772,7 @@ class SpiderDaoInterface:
     #Get all referendums in friendly format
     def get_all_refs(self):
 
+        self.substrate = self.substrate_connect()
         refs_cnt = self.substrate.query(
             module='Democracy',
             storage_function='ReferendumCount',
@@ -799,7 +808,6 @@ class SpiderDaoInterface:
     def get_props(self):
 
         self.substrate = self.substrate_connect()
-
         props = self.substrate.query(
             module='Democracy',
             storage_function='PublicProps',

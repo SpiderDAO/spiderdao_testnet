@@ -1,6 +1,7 @@
 import ast
 import asyncio
 import os
+import re
 import threading
 import time
 import timeago
@@ -199,6 +200,12 @@ class SpiderDaoInterface:
 
     #Import exisiting wallet by seed phrase
     def import_wallet(self, mnemonic):
+
+        #Clean whitespaces in the mnemonic and ensure it's a 12-word
+        mnemonic = re.sub(' +', ' ', mnemonic)
+        mnemonic = mnemonic.strip()
+        if len(mnemonic.split()) != 12:
+            return None
 
         n_keypair = None
         try:

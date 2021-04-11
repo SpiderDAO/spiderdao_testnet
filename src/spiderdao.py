@@ -107,8 +107,8 @@ class SpiderDaoInterface:
     def set_balance(self, addr):
 
         try:
-            #keypair = Keypair.create_from_mnemonic(SUDO_KEY)
-            keypair = Keypair.create_from_uri("//Alice")
+            keypair = Keypair.create_from_mnemonic(SUDO_KEY)
+            #keypair = Keypair.create_from_uri("//Alice")
             call = self.substrate.compose_call(
                 call_module='Balances',
                 call_function='transfer',

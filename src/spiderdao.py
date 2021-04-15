@@ -161,6 +161,7 @@ class SpiderDaoInterface:
 
         try:
             #keypair = Keypair.create_from_uri("//Alice")
+            self.substrate = self.substrate_connect()
             call = self.substrate.compose_call(
                 call_module='Balances',
                 call_function='transfer',
@@ -851,12 +852,6 @@ class SpiderDaoInterface:
     def get_proposal(self, prop_idx):
         
         prop_idx = str(prop_idx)
-        current_props = self.get_props()
-        if current_props["current_proposals"] == 0:
-            return None
-
-        if prop_idx not in current_props["proposals_idx"]:
-            return None
         
         if not proposals_db.exists(prop_idx):
             return None
@@ -882,8 +877,6 @@ class SpiderDaoInterface:
         props = self.get_props()
         if props["current_proposals"] == 0:
             return []
-            #pass
-        #print("Raw Proposals", props)
 
         proposals_list = []
         s_props = proposals_db.getall()
@@ -892,18 +885,14 @@ class SpiderDaoInterface:
 
         for prop_idx in list(s_props)[-5:]: 
 
+            if str(prop_idx) not in props["proposals_idx"]:
+                continue
+        
             prop_msg = self.get_proposal(prop_idx)
             if prop_msg is None:
                 continue
 
             proposals_list.append(prop_msg)
-
-            # prop_idx = p["prop_idx"]
-            # prop = s_props[prop_idx]
-            # proposer = prop["proposer_addr"] if prop["proposer_discord_username"] == "" else prop["proposer_discord_username"]
-            # proposal_str = prop["proposal"]
-            # prop_msg = f" 📝 Proposal ID `{prop_idx}`, Proposed by `{proposer}`, Proposal `{proposal_str}`"
-            
 
         if len(proposals_list) > 0:
             return proposals_list

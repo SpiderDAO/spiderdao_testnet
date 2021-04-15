@@ -15,7 +15,7 @@ sys.path.insert(0, '../src')
 from spiderdao import *
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, max_age=3600)
 
 error_dict = {"error" : "something is wrong"}
 nusers = {}

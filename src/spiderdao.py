@@ -106,6 +106,7 @@ class SpiderDaoInterface:
     #Helper function to set a specific user's balance automatically
     def set_balance(self, addr):
 
+        self.substrate = self.substrate_connect()
         try:
             keypair = Keypair.create_from_mnemonic(SUDO_KEY)
             #keypair = Keypair.create_from_uri("//Alice")
@@ -133,10 +134,10 @@ class SpiderDaoInterface:
 
         print("get_balance of", addr)
         balance = 0
+        self.substrate = self.substrate_connect()
         try:
-            substrate = self.substrate_connect()
 
-            account_info = substrate.query(
+            account_info = self.substrate.query(
                 module='System',
                 storage_function='Account',
                 params=[addr]
@@ -202,6 +203,7 @@ class SpiderDaoInterface:
     def import_wallet(self, mnemonic):
 
         #Clean whitespaces in the mnemonic and ensure it's a 12-word
+        mnemonic = str(mnemonic)
         mnemonic = re.sub(' +', ' ', mnemonic)
         mnemonic = mnemonic.strip()
         if len(mnemonic.split()) != 12:
@@ -744,7 +746,7 @@ class SpiderDaoInterface:
         elif ref["status"] == "Ongoing":
             #Referendum `1` is ongoing will end in {X time}, number of voters {}, results X% Approved/Not Approved
 
-            status = "is `ongoing`"
+            status = "ongoing"
             
             end_block = int(ref["end_block"])
             diff_tm = int(end_block - int(last_block)) * 6
@@ -757,7 +759,7 @@ class SpiderDaoInterface:
             if n_voters > 0:
                 current_perc = int(float(int(ref["ayes"])/int(ref["total_votes"]) * 100))
 
-            ref_msg = ref_msg + f" {status} will end {end_str}, Total voters `{n_voters}`, `{current_perc}%` Approved so far.\n \
+            ref_msg = ref_msg + f" is `{status}` will end {end_str}, Total voters `{n_voters}`, `{current_perc}%` Approved so far.\n \
                 Proposed by `{proposer}`, Proposal `{proposal_str}`"
 
             ref_json["status"] = status
@@ -849,13 +851,20 @@ class SpiderDaoInterface:
     def get_proposal(self, prop_idx):
         
         prop_idx = str(prop_idx)
+        current_props = self.get_props()
+        if current_props["current_proposals"] == 0
+            return None
+
+        if prop_idx not incurrent_props["proposals_idx"]
+            return None
+        
         if not proposals_db.exists(prop_idx):
             return None
 
         prop = proposals_db.get(prop_idx)
         proposer = prop["proposer_addr"] if prop["proposer_discord_username"] == "" else prop["proposer_discord_username"]
         proposal_str = prop["proposal"]
-        prop_msg = f"\n \
+        prop_msg = f"\
 📇 Proposal Index {prop_idx}\n \
 👤 Proposed by: {proposer}\n \
 🧩 Proposal {proposal_str}\n"
@@ -872,8 +881,8 @@ class SpiderDaoInterface:
 
         props = self.get_props()
         if props["current_proposals"] == 0:
-            #return [] #RECHECK
-            pass
+            return []
+            #pass
         #print("Raw Proposals", props)
 
         proposals_list = []

@@ -855,7 +855,7 @@ class SpiderDaoInterface:
         if current_props["current_proposals"] == 0:
             return None
 
-        if prop_idx not incurrent_props["proposals_idx"]:
+        if prop_idx not in current_props["proposals_idx"]:
             return None
         
         if not proposals_db.exists(prop_idx):

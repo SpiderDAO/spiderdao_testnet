@@ -626,7 +626,7 @@ def get_ref():
         ref_list = ret_ref_list
 
         if len(ref_list) == 0:
-            ref_err = ["Referendum Not Found"]
+            ref_err = ["No Referendums Available"]
             return jsonify(ref_err)
         
         return jsonify(ref_list)

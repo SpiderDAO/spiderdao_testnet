@@ -852,10 +852,10 @@ class SpiderDaoInterface:
         
         prop_idx = str(prop_idx)
         current_props = self.get_props()
-        if current_props["current_proposals"] == 0
+        if current_props["current_proposals"] == 0:
             return None
 
-        if prop_idx not incurrent_props["proposals_idx"]
+        if prop_idx not incurrent_props["proposals_idx"]:
             return None
         
         if not proposals_db.exists(prop_idx):

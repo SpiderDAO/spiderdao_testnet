@@ -85,7 +85,7 @@ class SpiderDaoInterface:
                 return None
 
         #Init DB
-        self.proposals_db = pickledb.load('../db/proposals.db', False)
+        self.proposals_db = pickledb.load('../db/proposals.db', True, False)
         self._chain_modules = chain_modules
         self.encoded_proposal = None
         self.call_ascii = None
@@ -481,7 +481,6 @@ class SpiderDaoInterface:
 
         #Store proposal data in DB
         self.proposals_db.set(PropIndex, prop_info)
-        self.proposals_db.dump()
 
         return proposal
 
@@ -907,7 +906,6 @@ class SpiderDaoInterface:
         prop = self.proposals_db.get(PropIndex)# [PropIndex]["proposer_discord_username"] = ctx.author
         prop["proposer_discord_username"] = username
         self.proposals_db.set(PropIndex, prop)
-        self.proposals_db.dump()
         
         return
 

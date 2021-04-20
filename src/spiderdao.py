@@ -841,9 +841,9 @@ class SpiderDaoInterface:
             proposal["prop_idx"] = prop_idx
             proposal["proposal_hash"] = p['col2']
             proposal["proposed_by"] = p['col3']
-            if prop_idx not in d_props["proposals_idx"]:
+            if prop_idx in d_props["proposals_idx"]:
                 continue
-            
+
             d_props["proposals"].append(proposal)
             d_props["proposals_idx"].append(prop_idx)
 

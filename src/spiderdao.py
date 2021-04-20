@@ -854,6 +854,7 @@ class SpiderDaoInterface:
         prop_idx = str(prop_idx)
         
         if not proposals_db.exists(prop_idx):
+            print(f"Proposal {prop_idx} doesn't exist in DB")
             return None
 
         prop = proposals_db.get(prop_idx)
@@ -905,6 +906,7 @@ class SpiderDaoInterface:
         prop = proposals_db.get(PropIndex)# [PropIndex]["proposer_discord_username"] = ctx.author
         prop["proposer_discord_username"] = username
         proposals_db.set(PropIndex, prop)
+        proposals_db.dump()
         
         return
 

@@ -471,7 +471,8 @@ async def bot_getprops(ctx, *arg):
             props_msg = spdr.get_proposal(prop_idx)
             if props_msg is not None:
                 props_msg = props_msg["prop_msg"]
-
+        
+    print("Sending prop_msg", ctx.author, props_msg)
     await ctx.send(props_msg)
 
 def parse_refstarted(ledx):

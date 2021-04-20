@@ -31,9 +31,6 @@ SUDO_KEY = os.environ.get('SUDO_KEY')
 #Keep track of last block number
 g_last_block_number = 0
 
-#Init DB
-proposals_db = pickledb.load('../db/proposals.db', True)
-
 #Initialize proposals data dictionary
 d_props = {
     "current_proposals" : 0,
@@ -87,6 +84,8 @@ class SpiderDaoInterface:
             if self.keypair is None:
                 return None
 
+        #Init DB
+        self.proposals_db = pickledb.load('../db/proposals.db', True)
         self._chain_modules = chain_modules
         self.encoded_proposal = None
         self.call_ascii = None
@@ -481,8 +480,7 @@ class SpiderDaoInterface:
         #proposal_dict[PropIndex] = prop_info
 
         #Store proposal data in DB
-        proposals_db.set(PropIndex, prop_info)
-        proposals_db.dump()
+        self.proposals_db.set(PropIndex, prop_info)
 
         return proposal
 
@@ -704,12 +702,12 @@ class SpiderDaoInterface:
 
         prop_idx = ref_idx
         #if prop_index not in proposal_dict:
-        if not proposals_db.exists(prop_idx):
+        if not self.proposals_db.exists(prop_idx):
             #ref_msg = ref_msg + " Not Found #1"
             #ref_json["ref_msg"] = ref_msg
             return None
 
-        prop = proposals_db.get(prop_idx)
+        prop = self.proposals_db.get(prop_idx)
         proposer = prop["proposer_addr"] if prop["proposer_discord_username"] == "" else prop["proposer_discord_username"]
         proposal_str = prop["proposal"]
 
@@ -853,11 +851,11 @@ class SpiderDaoInterface:
         
         prop_idx = str(prop_idx)
         
-        if not proposals_db.exists(prop_idx):
+        if not self.proposals_db.exists(prop_idx):
             print(f"Proposal {prop_idx} doesn't exist in DB")
             return None
 
-        prop = proposals_db.get(prop_idx)
+        prop = self.proposals_db.get(prop_idx)
         proposer = prop["proposer_addr"] if prop["proposer_discord_username"] == "" else prop["proposer_discord_username"]
         proposal_str = prop["proposal"]
         prop_msg = f"\
@@ -880,7 +878,7 @@ class SpiderDaoInterface:
             return []
 
         proposals_list = []
-        s_props = proposals_db.getall()
+        s_props = self.proposals_db.getall()
         if len(list(s_props)) == 0:
             return []
 
@@ -905,10 +903,9 @@ class SpiderDaoInterface:
     #If proposal originated from Discord bot user, username is stored in DB here
     def db_set_user(self, PropIndex, username):
 
-        prop = proposals_db.get(PropIndex)# [PropIndex]["proposer_discord_username"] = ctx.author
+        prop = self.proposals_db.get(PropIndex)# [PropIndex]["proposer_discord_username"] = ctx.author
         prop["proposer_discord_username"] = username
-        proposals_db.set(PropIndex, prop)
-        proposals_db.dump()
+        self.proposals_db.set(PropIndex, prop)
         
         return
 

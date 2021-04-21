@@ -702,7 +702,7 @@ class SpiderDaoInterface:
         #{'status': 'Ongoing', 'end_block': 23300, 'proposal': '0x9d82789583cecb141eff0a86420cd088a0526d0cea40dc6c77e42cfe0b556e3d', 'ayes': 1, 'nays': 0, 'total_votes': 1}
 
         ref_json = {}
-        s_props = self.proposals_db.getall():
+        s_props = self.proposals_db.getall()
         if len(list(s_props)) == 0:
             return None
 

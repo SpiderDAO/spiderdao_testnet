@@ -671,7 +671,7 @@ class SpiderDaoInterface:
             ret_d["params"] = params
             ret_d["proposal"] = f"Module: {module_name}\n🧮 Module function: {call_id}\n⌨️ Function parameters: {params_str}"
             ret_d["proposer"] = d_preimage["Available"]["provider"]
-            ret_d["proposer_addr"] = Keypair(public_key=str(d_preimage["Available"]["provider"])).ss58_address
+            ret_d["proposer_addr"] = Keypair(public_key=str(d_preimage["Available"]["provider"]), ss58_format=42).ss58_address
             ret_d["deposit"] = float(d_preimage["Available"]["deposit"])/ CHAIN_DEC
             #ret_d["encoded_proposal"] = encoded_proposal
 # 📇 Proposal Index 30

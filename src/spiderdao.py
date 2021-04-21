@@ -467,8 +467,10 @@ class SpiderDaoInterface:
 
         prop_dec = self.get_proposal_info(preimage_hash)
         if prop_dec is None:
+            print("prop_dec is None")
             prop_dec = {}
             prop_dec["proposal"] = self.call_ascii
+            prop_dec["encoded_proposal"] = None
 
         prop_info = {
             "proposer_addr" : self.keypair.ss58_address,
@@ -630,13 +632,14 @@ class SpiderDaoInterface:
 #{'call_index': '0x0400', 'call_function': 'transfer', 'call_module': 'Balances', 'call_args': [{'name': 'dest', 'type': 'LookupSource', 'value': '0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d'}, {'name': 'value', 'type': 'Compact<Balance>', 'value': 221000000000000}], 'call_hash': '0x9fcc7063b2d6b27b3fce06dd19bbb42b3f7a9152595efbf95dc3a8e57a67887b'}
 
         d_preimage = ast.literal_eval(str(preimage))
+        print("d_preimage", d_preimage)
         if "Available" not in d_preimage:
             return None
 
         ret_d = None
         try:
-            self.encoded_proposal = d_preimage["Available"]["data"]
-            call = self.substrate.decode_scale('Call', d_preimage["Available"]["data"])
+            encoded_proposal = d_preimage["Available"]["data"]
+            call = self.substrate.decode_scale('Call', encoded_proposal)
 
             call = ast.literal_eval(str(call))
             
@@ -656,7 +659,7 @@ class SpiderDaoInterface:
                     val = p["value"]
 
                 if "balance" in p["type"].lower():
-                    val = int(val) / CHAIN_DEC
+                    val = float(val) / CHAIN_DEC
                     
                 params_str = params_str + f"{name}:{str(val)} "
 
@@ -669,7 +672,7 @@ class SpiderDaoInterface:
             ret_d["proposer"] = d_preimage["Available"]["provider"]
             ret_d["proposer_addr"] = Keypair(public_key=d_preimage["Available"]["provider"]).ss58_address
             ret_d["deposit"] = float(d_preimage["Available"]["deposit"])/ CHAIN_DEC
-            ret_d["encoded_proposal"] = self.encoded_proposal
+            ret_d["encoded_proposal"] = encoded_proposal
 # 📇 Proposal Index 30
 # 👤 Proposed by: 5HMpBMX8PGwNpzo3XAwD1FcqiB69XJhdbhJyt7ZyvgLeF7Am
 # 🧩 Proposal Module: Balances
@@ -850,6 +853,7 @@ class SpiderDaoInterface:
         if len(list(s_props)) == 0:
             return None
 
+        #DELTRECH
         for r in range(refs_cnt,-1,-1):
             ref_json = self.get_ref_status(str(r), props=s_props)
             if ref_json is None:
@@ -984,7 +988,7 @@ class SpiderDaoInterface:
         #     return []
 
         # print("s_props", s_props)
-        for prop_idx in props: 
+        for prop_idx in props["proposals_idx"]: 
         
             prop_msg = self.get_proposal(prop_idx, props=props)
             if prop_msg is None:

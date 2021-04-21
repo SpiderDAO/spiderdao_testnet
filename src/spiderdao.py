@@ -474,7 +474,8 @@ class SpiderDaoInterface:
             "proposer_pubkey" : self.keypair.public_key,
             "preimage_hash" : preimage_hash,
             "proposal" : prop_dec["call_str"],
-            "encoded_proposal" : self.encoded_proposal
+            "prop_idx" : PropIndex,
+            "encoded_proposal" : prop_dec["encoded_proposal"]
         }
 
         #proposal_dict[PropIndex] = prop_info
@@ -627,6 +628,7 @@ class SpiderDaoInterface:
 
         ret_d = None
         try:
+            self.encoded_proposal = d_preimage["Available"]["data"]
             call = self.substrate.decode_scale('Call', d_preimage["Available"]["data"])
 
             call = ast.literal_eval(str(call))
@@ -659,6 +661,7 @@ class SpiderDaoInterface:
             ret_d["call_str"] = f"Module: {module_name}\n🧮 Module function: {call_id}\n⌨️ Function parameters: {params_str}"
             ret_d["proposer"] = d_preimage["Available"]["provider"]
             ret_d["deposit"] = float(d_preimage["Available"]["deposit"])/ CHAIN_DEC
+            ret_d["encoded_proposal"] = self.encoded_proposal
 # 📇 Proposal Index 30
 # 👤 Proposed by: 5HMpBMX8PGwNpzo3XAwD1FcqiB69XJhdbhJyt7ZyvgLeF7Am
 # 🧩 Proposal Module: Balances
@@ -837,13 +840,15 @@ class SpiderDaoInterface:
 
         for p in props:
             prop_idx = str(p['col1'])
+            if prop_idx in d_props["proposals_idx"]:
+                continue
+
             proposal = {}
             proposal["prop_idx"] = prop_idx
             proposal["proposal_hash"] = p['col2']
             proposal["proposed_by"] = p['col3']
-            if prop_idx in d_props["proposals_idx"]:
-                continue
 
+            d_props["proposal_hash_idx"] = {prop_idx : p['col2']}
             d_props["proposals"].append(proposal)
             d_props["proposals_idx"].append(prop_idx)
 
@@ -932,6 +937,10 @@ class SpiderDaoInterface:
 
                     if ep["type"] == "VoteThreshold":
                         ref_dic["VoteThreshold"] = str(ep["value"])
+
+        if ref_dic["PropIndex"] != ref_dic["ReferendumIndex"]:
+            prop = self.proposals_db.get(PropIndex)
+            self.proposals_db.set(ref_dic["ReferendumIndex"], prop)
 
         ref_dic["user"] = ref_dic["pub_key"]
 

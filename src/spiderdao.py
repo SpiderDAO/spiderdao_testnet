@@ -475,6 +475,7 @@ class SpiderDaoInterface:
             "preimage_hash" : preimage_hash,
             "proposal" : prop_dec["call_str"],
             "prop_idx" : PropIndex,
+            "ref_idx" : PropIndex,
             "encoded_proposal" : prop_dec["encoded_proposal"]
         }
 
@@ -945,10 +946,10 @@ class SpiderDaoInterface:
                     if ep["type"] == "VoteThreshold":
                         ref_dic["VoteThreshold"] = str(ep["value"])
 
-        #if ref_dic["PropIndex"] != ref_dic["ReferendumIndex"]:
-        prop = self.proposals_db.get(ref_dic["PropIndex"])
-        prop["ref_idx"] = ref_dic["ReferendumIndex"]
-        self.proposals_db.set(ref_dic["PropIndex"], prop)
+        if ref_dic["PropIndex"] != ref_dic["ReferendumIndex"]:
+            prop = self.proposals_db.get(ref_dic["PropIndex"])
+            prop["ref_idx"] = ref_dic["ReferendumIndex"]
+            self.proposals_db.set(ref_dic["PropIndex"], prop)
             
         ref_dic["user"] = ref_dic["pub_key"]
 

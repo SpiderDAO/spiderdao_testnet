@@ -121,7 +121,7 @@ class SpiderDaoInterface:
             extrinsic = self.substrate.create_signed_extrinsic(
                         call=call,
                         keypair=keypair,
-                        era={'period': 64})
+                        era={'period': 1000})
 
             reply = self.substrate.submit_extrinsic(extrinsic, wait_for_inclusion=True, wait_for_finalization=False)
             return True
@@ -440,7 +440,7 @@ class SpiderDaoInterface:
     #Actual Propose transaction
     def propose(self, preimage_hash):
 
-        lock.acquire()
+        #lock.acquire()
         self.substrate = self.substrate_connect()
         call = self.substrate.compose_call(
                 call_module='Democracy',
@@ -468,27 +468,27 @@ class SpiderDaoInterface:
         prop_dec = self.get_proposal_info(preimage_hash)
         if prop_dec is None:
             prop_dec = {}
-            prop_dec["call_str"] = self.call_ascii
+            prop_dec["proposal"] = self.call_ascii
 
         prop_info = {
             "proposer_addr" : self.keypair.ss58_address,
             "proposer_discord_username" : "",
             "proposer_pubkey" : self.keypair.public_key,
             "preimage_hash" : preimage_hash,
-            "proposal" : prop_dec["call_str"],
+            "proposal" : prop_dec["proposal"],
             "prop_idx" : PropIndex,
             "ref_idx" : PropIndex,
             "encoded_proposal" : prop_dec["encoded_proposal"]
         }
-
+        proposal["prop_info"] = prop_info
         #proposal_dict[PropIndex] = prop_info
 
-        #Store proposal data in DB
+        # #Store proposal data in DB
         
-        print("DB INS", PropIndex, prop_info)
-        self.proposals_db.set(PropIndex, prop_info)
-        self.proposals_db.dump()
-        lock.release()
+        # print("DB INS", PropIndex, prop_info)
+        # self.proposals_db.set(PropIndex, prop_info)
+        # self.proposals_db.dump()
+        # lock.release()
 
         return proposal
 
@@ -665,8 +665,9 @@ class SpiderDaoInterface:
             ret_d["module_name"] = module_name
             ret_d["call_id"] = call_id
             ret_d["params"] = params
-            ret_d["call_str"] = f"Module: {module_name}\n🧮 Module function: {call_id}\n⌨️ Function parameters: {params_str}"
+            ret_d["proposal"] = f"Module: {module_name}\n🧮 Module function: {call_id}\n⌨️ Function parameters: {params_str}"
             ret_d["proposer"] = d_preimage["Available"]["provider"]
+            ret_d["proposer_addr"] = Keypair(public_key=d_preimage["Available"]["provider"]).ss58_address
             ret_d["deposit"] = float(d_preimage["Available"]["deposit"])/ CHAIN_DEC
             ret_d["encoded_proposal"] = self.encoded_proposal
 # 📇 Proposal Index 30
@@ -696,7 +697,11 @@ class SpiderDaoInterface:
         return last_block_hash, last_block_number
 
     #Parse Referendum data into UI friendly format
-    def get_ref_status(self, ref_idx):
+    def get_ref_status(self, ref_idx, props=None):
+        """
+            props: default argument is passed as None in case get_ref_status is called in a loop i.e From get_all_refs() the props arg will be passed one time
+            instead of calling get_props() in each iteration
+        """
 
         ref = self.get_ref_info(ref_idx)
         #print("get_ref_status ref", ref, ref_idx)
@@ -709,25 +714,50 @@ class SpiderDaoInterface:
         #{'status': 'Ongoing', 'end_block': 23300, 'proposal': '0x9d82789583cecb141eff0a86420cd088a0526d0cea40dc6c77e42cfe0b556e3d', 'ayes': 1, 'nays': 0, 'total_votes': 1}
 
         ref_json = {}
-        s_props = self.proposals_db.getall()
-        if len(list(s_props)) == 0:
+        if props == None:
+            props = self.get_props()
+
+        if len(list(props)) == 0:
             return None
+
+            #DELTRECH
+            # prop_idx = str(p['col1'])
+            # if prop_idx in d_props["proposals_idx"]:
+            #     continue
+
+            # proposal = {}
+            # proposal["prop_idx"] = prop_idx
+            # proposal["proposal_hash"] = p['col2']
+            # proposal["proposed_by"] = p['col3']
+
+            # d_props["proposal_hash_idx"] = {prop_idx : p['col2']}
+            # d_props["proposals"].append(proposal)
+            # d_props["proposals_idx"].append(prop_idx)
+
 
         prop_idx = "-1"
-        for p in s_props:
-            prop = self.proposals_db.get(p)
-            if prop["ref_idx"] == ref_idx:
-                prop_idx = p
-                break
-        #if prop_index not in proposal_dict:
-        if not self.proposals_db.exists(prop_idx):
-            #ref_msg = ref_msg + " Not Found #1"
-            #ref_json["ref_msg"] = ref_msg
-            return None
+        preimage_hash = ""
+        #If the Referendum is not ended, if ended will not show proposal hash as shown in sample output above
+        if "proposal" in ref:
+            for p in props:
+                if p["proposals"]["proposal_hash"] == ref["proposal"]:
+                    prop_idx = p
+                    preimage_hash = p["preimage_hash"]
+                    break
+        # #if prop_index not in proposal_dict:
+        # if not self.proposals_db.exists(prop_idx):
+        #     #ref_msg = ref_msg + " Not Found #1"
+        #     #ref_json["ref_msg"] = ref_msg
+        #     return None
 
-        prop = self.proposals_db.get(prop_idx)
-        proposer = prop["proposer_addr"] if prop["proposer_discord_username"] == "" else prop["proposer_discord_username"]
-        proposal_str = prop["proposal"]
+        #prop = self.proposals_db.get(prop_idx)
+        prop = None
+        proposer = None
+        proposal_str = None
+        if "proposal" in ref:
+            prop = self.get_proposal_info(preimage_hash)
+            proposer = prop["proposer_addr"] if prop["proposer_discord_username"] == "" else prop["proposer_discord_username"]
+            proposal_str = prop["proposal"]
 
         _, last_block = self.get_last_block()
         if "status" not in ref:
@@ -749,8 +779,11 @@ class SpiderDaoInterface:
             else:
                 tally = "Not Approved"
 
-            ref_msg = ref_msg + f" `{tally}`, `{status}` {end_str}.\n \
-                Proposed by `{proposer}`, Proposal `{proposal_str}`"
+            if prop is not None:
+                ref_msg = ref_msg + f" `{tally}`, `{status}` {end_str}.\n \
+                    Proposed by `{proposer}`, Proposal `{proposal_str}`"
+            else:
+                ref_msg = ref_msg + f" `{tally}`, `{status}` {end_str}."
 
             ref_json["status"] = status
             ref_json["end_str"] = end_str
@@ -813,8 +846,12 @@ class SpiderDaoInterface:
         refs_list = []
         ref_th = []
 
+        s_props = self.get_props()
+        if len(list(s_props)) == 0:
+            return None
+
         for r in range(refs_cnt,-1,-1):
-            ref_json = self.get_ref_status(str(r))
+            ref_json = self.get_ref_status(str(r), props=s_props)
             if ref_json is None:
                 continue
 
@@ -864,6 +901,7 @@ class SpiderDaoInterface:
             proposal["proposal_hash"] = p['col2']
             proposal["proposed_by"] = p['col3']
 
+            #DELTRECH
             d_props["proposal_hash_idx"] = {prop_idx : p['col2']}
             d_props["proposals"].append(proposal)
             d_props["proposals_idx"].append(prop_idx)
@@ -871,17 +909,56 @@ class SpiderDaoInterface:
         return d_props
 
     #Get a Proposal data from chain metadata, map it with the Proposal in DB and return data in Json format
-    def get_proposal(self, prop_idx):
+    def get_proposal(self, prop_idx, props=None):
         
         prop_idx = str(prop_idx)
-        
-        if not self.proposals_db.exists(prop_idx):
-            print(f"Proposal {prop_idx} doesn't exist in DB")
+
+        if props == None:
+            props = self.get_props()
+
+        if len(list(props)) == 0:
             return None
 
-        prop = self.proposals_db.get(prop_idx)
+            #DELTRECH
+            # prop_idx = str(p['col1'])
+            # if prop_idx in d_props["proposals_idx"]:
+            #     continue
+
+            # proposal = {}
+            # proposal["prop_idx"] = prop_idx
+            # proposal["proposal_hash"] = p['col2']
+            # proposal["proposed_by"] = p['col3']
+
+            # d_props["proposal_hash_idx"] = {prop_idx : p['col2']}
+            # d_props["proposals"].append(proposal)
+            # d_props["proposals_idx"].append(prop_idx)
+
+        preimage_hash = ""
+
+        if prop_idx in props["proposals_idx"]:
+
+            """
+            Extract preimage_hash from proposals dictionary
+            """
+            for p in props["proposals"]:
+                if prop_idx == p["prop_idx"]:
+                    preimage_hash = p["proposal_hash"]
+                    break
+        else:
+            print(f"Proposal {prop_idx} doesn't exist")
+            return None
+
+        prop = self.get_proposal_info(preimage_hash)
         proposer = prop["proposer_addr"] if prop["proposer_discord_username"] == "" else prop["proposer_discord_username"]
         proposal_str = prop["proposal"]
+
+        # if not self.proposals_db.exists(prop_idx):
+        #     print(f"Proposal {prop_idx} doesn't exist in DB")
+        #     return None
+
+        # prop = self.proposals_db.get(prop_idx)
+        # proposer = prop["proposer_addr"] if prop["proposer_discord_username"] == "" else prop["proposer_discord_username"]
+        # proposal_str = prop["proposal"]
         prop_msg = f"\
 📇 Proposal Index {prop_idx}\n \
 👤 Proposed by: {proposer}\n \
@@ -902,18 +979,14 @@ class SpiderDaoInterface:
             return []
 
         proposals_list = []
-        s_props = self.proposals_db.getall()
-        if len(list(s_props)) == 0:
-            return []
+        # s_props = self.proposals_db.getall()
+        # if len(list(s_props)) == 0:
+        #     return []
 
-        print("s_props", s_props)
-        for prop_idx in s_props: 
-
-            print("prop_idx", prop_idx, props)
-            if str(prop_idx) not in props["proposals_idx"]:
-                continue
+        # print("s_props", s_props)
+        for prop_idx in props: 
         
-            prop_msg = self.get_proposal(prop_idx)
+            prop_msg = self.get_proposal(prop_idx, props=props)
             if prop_msg is None:
                 continue
 
@@ -927,6 +1000,7 @@ class SpiderDaoInterface:
     #If proposal originated from Discord bot user, username is stored in DB here
     def db_set_user(self, PropIndex, username):
 
+        #DELTRECH
         prop = self.proposals_db.get(PropIndex)
         prop["proposer_discord_username"] = username
         self.proposals_db.set(PropIndex, prop)

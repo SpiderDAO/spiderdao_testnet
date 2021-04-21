@@ -745,7 +745,7 @@ class SpiderDaoInterface:
             for p in props["proposals"]:
                 if p["proposal_hash"] == ref["proposal"]:
                     prop_idx = p
-                    preimage_hash = p["preimage_hash"]
+                    preimage_hash = p["proposal_hash"]
                     break
         # #if prop_index not in proposal_dict:
         # if not self.proposals_db.exists(prop_idx):

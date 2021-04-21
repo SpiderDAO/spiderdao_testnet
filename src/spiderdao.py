@@ -702,8 +702,15 @@ class SpiderDaoInterface:
         #{'status': 'Ongoing', 'end_block': 23300, 'proposal': '0x9d82789583cecb141eff0a86420cd088a0526d0cea40dc6c77e42cfe0b556e3d', 'ayes': 1, 'nays': 0, 'total_votes': 1}
 
         ref_json = {}
+        s_props = self.proposals_db.getall():
+        if len(list(s_props)) == 0:
+            return None
 
-        prop_idx = ref_idx
+        prop_idx = "-1"
+        for p in s_props:
+            if s_props[p]["ref_idx"] == ref_idx
+                prop_idx = p
+                break
         #if prop_index not in proposal_dict:
         if not self.proposals_db.exists(prop_idx):
             #ref_msg = ref_msg + " Not Found #1"
@@ -939,7 +946,8 @@ class SpiderDaoInterface:
 
         if ref_dic["PropIndex"] != ref_dic["ReferendumIndex"]:
             prop = self.proposals_db.get(ref_dic["PropIndex"])
-            self.proposals_db.set(ref_dic["ReferendumIndex"], prop)
+            prop["ref_idx"] = ref_dic["ReferendumIndex"]
+            self.proposals_db.set(ref_dic["PropIndex"], prop)
             
         ref_dic["user"] = ref_dic["pub_key"]
 

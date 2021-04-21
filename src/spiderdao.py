@@ -707,6 +707,8 @@ class SpiderDaoInterface:
             return None
 
         prop_idx = "-1"
+        print("s_props", s_props)
+        print("s_props.keys()", s_props.keys(), type(s_props.keys()))
         for p in s_props:
             print("s_props[p]", s_props[p])
             if s_props[p].keys()["ref_idx"] == ref_idx:

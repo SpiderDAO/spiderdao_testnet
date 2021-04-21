@@ -440,6 +440,7 @@ class SpiderDaoInterface:
     #Actual Propose transaction
     def propose(self, preimage_hash):
 
+        lock.acquire()
         self.substrate = self.substrate_connect()
         call = self.substrate.compose_call(
                 call_module='Democracy',
@@ -483,7 +484,7 @@ class SpiderDaoInterface:
         #proposal_dict[PropIndex] = prop_info
 
         #Store proposal data in DB
-        lock.acquire()
+        
         print("DB INS", PropIndex, prop_info)
         self.proposals_db.set(PropIndex, prop_info)
         self.proposals_db.dump()
@@ -957,6 +958,7 @@ class SpiderDaoInterface:
             prop = self.proposals_db.get(ref_dic["PropIndex"])
             prop["ref_idx"] = ref_dic["ReferendumIndex"]
             self.proposals_db.set(ref_dic["PropIndex"], prop)
+            print("PropIndex -> ReferendumIndex", ref_dic["PropIndex"], ref_dic["ReferendumIndex"])
             
         ref_dic["user"] = ref_dic["pub_key"]
 

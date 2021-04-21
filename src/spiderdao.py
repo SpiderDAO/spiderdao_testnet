@@ -856,8 +856,7 @@ class SpiderDaoInterface:
         # if len(list(s_props)) == 0:
         #     return None
 
-        #DELTRECH
-        for r in range(refs_cnt,-1, -1):
+        for r in range(refs_cnt, refs_cnt-5, -1):
             ref_json = self.get_ref_status(str(r), props=s_props)
             if ref_json is None:
                 continue
@@ -1120,14 +1119,14 @@ class SpiderDaoChain:
         return
 
     def substrate_connect(self):
-        self.substrate = SubstrateInterface(
+        substrate = SubstrateInterface(
                     url=self.node_url,
                     ss58_format=42,
                     type_registry_preset='westend',
         )
 
         #self.substrate.update_type_registry_presets()
-        return self.substrate
+        return substrate
 
     async def event_process(self, lev, ebh, cb_ch):
         

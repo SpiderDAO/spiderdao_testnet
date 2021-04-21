@@ -707,11 +707,9 @@ class SpiderDaoInterface:
             return None
 
         prop_idx = "-1"
-        print("s_props", s_props)
-        print("s_props.keys()", s_props.keys(), type(s_props.keys()))
         for p in s_props:
-            print("s_props[p]", s_props[p])
-            if s_props[p].keys()["ref_idx"] == ref_idx:
+            prop = self.proposals_db.get(p)
+            if prop["ref_idx"] == ref_idx:
                 prop_idx = p
                 break
         #if prop_index not in proposal_dict:

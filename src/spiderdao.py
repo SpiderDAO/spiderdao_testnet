@@ -94,14 +94,15 @@ class SpiderDaoInterface:
 
     #Connect to the chain
     def substrate_connect(self):
-        self.substrate = SubstrateInterface(
+        substrate = SubstrateInterface(
                     url=self.node_url,
                     ss58_format=42,
-                    type_registry_preset="westend"
+                    type_registry_preset='westend',
         )
 
         #self.substrate.update_type_registry_presets()
-        return self.substrate
+        self.substrate = substrate
+        return substrate
 
     #Helper function to set a specific user's balance automatically
     def set_balance(self, addr):
@@ -161,8 +162,8 @@ class SpiderDaoInterface:
 
         try:
             #keypair = Keypair.create_from_uri("//Alice")
-            self.substrate = self.substrate_connect()
-            call = self.substrate.compose_call(
+            substrate = self.substrate_connect()
+            call = substrate.compose_call(
                 call_module='Balances',
                 call_function='transfer',
                 call_params={
@@ -170,12 +171,12 @@ class SpiderDaoInterface:
                 'value': value * CHAIN_DEC
             })
             
-            extrinsic = self.substrate.create_signed_extrinsic(
+            extrinsic = substrate.create_signed_extrinsic(
                         call=call,
                         keypair=self.keypair,
                         era={'period': 64})
 
-            reply = self.substrate.submit_extrinsic(extrinsic, wait_for_inclusion=True, wait_for_finalization=False)
+            reply = substrate.submit_extrinsic(extrinsic, wait_for_inclusion=True, wait_for_finalization=False)
             extrinsic_hash = str(reply['extrinsic_hash'])
             ret_dic["success"] = "Balance of {} SPDR Transferred to {}".format(value, addr)
             ret_dic["block_hash"] = extrinsic_hash
@@ -306,8 +307,8 @@ class SpiderDaoInterface:
     #Create a call from proposal parameters
     def create_substrate_call(self, call_params):
 
-        self.substrate = self.substrate_connect()
-        call = self.substrate.compose_call(
+        substrate = self.substrate_connect()
+        call = substrate.compose_call(
             call_module=call_params["module_name"],
             call_function=call_params["call_id"],
             call_params=call_params["params"]
@@ -325,7 +326,7 @@ class SpiderDaoInterface:
     def submit_extrinsic(self, call):
 
         #keypair = Keypair.create_from_mnemonic(bot_users[ctx.author]["keypair"].mnemonic)
-        self.substrate = self.substrate_connect()
+        substrate = self.substrate_connect()
         wallet_info = f" \
         Seed phrase: `{ self.keypair.mnemonic}`\n \
         Address: `{ self.keypair.ss58_address}`\n \
@@ -333,14 +334,14 @@ class SpiderDaoInterface:
         Private key: `{ self.keypair.private_key}`\n"
         #print(f"Keypair:\n{wallet_info}")
 
-        extrinsic = self.substrate.create_signed_extrinsic(
+        extrinsic = substrate.create_signed_extrinsic(
                     call=call,
                     keypair=self.keypair,
                     era={'period': 64})
         
         reply = {}
         try:
-            reply = self.substrate.submit_extrinsic(extrinsic, wait_for_inclusion=True, wait_for_finalization=self.wait_for_finalization) #wait_for_inclusion
+            reply = substrate.submit_extrinsic(extrinsic, wait_for_inclusion=True, wait_for_finalization=self.wait_for_finalization) #wait_for_inclusion
         except Exception as e:
             print("Network Error", f"Call: {call}", e)
             reply = {}
@@ -365,8 +366,8 @@ class SpiderDaoInterface:
     #Submit preimage hash and pay storage fees
     def note_preimage(self, encoded_proposal):
 
-        self.substrate = self.substrate_connect()
-        call = self.substrate.compose_call(
+        substrate = self.substrate_connect()
+        call = substrate.compose_call(
                 call_module='Democracy',
                 call_function='note_preimage',
                 call_params={
@@ -386,7 +387,7 @@ class SpiderDaoInterface:
 
         print("ARG", arg)
 
-        self.substrate = self.substrate_connect()
+        substrate = self.substrate_connect()
         
         call_params = None
         if json:
@@ -409,7 +410,7 @@ class SpiderDaoInterface:
         if "error" in block_hash:
             return block_hash
 
-        ev_bh = self.substrate.get_events(block_hash=block_hash)
+        ev_bh = substrate.get_events(block_hash=block_hash)
 
         preimage_hash = ""
         storageFee = -1
@@ -441,8 +442,8 @@ class SpiderDaoInterface:
     def propose(self, preimage_hash):
 
         #lock.acquire()
-        self.substrate = self.substrate_connect()
-        call = self.substrate.compose_call(
+        substrate = self.substrate_connect()
+        call = substrate.compose_call(
                 call_module='Democracy',
                 call_function='propose',
                 call_params={
@@ -455,7 +456,7 @@ class SpiderDaoInterface:
         if "error" in block_hash:
             return block_hash
 
-        ev = self.substrate.get_events(block_hash=block_hash)
+        ev = substrate.get_events(block_hash=block_hash)
 
         PropIndex = str(self.get_PropIndex(ev))
 
@@ -506,8 +507,8 @@ class SpiderDaoInterface:
             return error_dict
 
         prop_idx = int(prop_idx)
-        self.substrate = self.substrate_connect()
-        call = self.substrate.compose_call(
+        substrate = self.substrate_connect()
+        call = substrate.compose_call(
                 call_module='Democracy',
                 call_function='second',
                 call_params={
@@ -525,7 +526,7 @@ class SpiderDaoInterface:
     #Vote on a Referendum
     def vote(self, ref_index, vote_value):
 
-        self.substrate = self.substrate_connect()
+        substrate = self.substrate_connect()
 
         ref_status = self.get_ref_info(ref_index)
         if ref_status["status"] != "Ongoing":
@@ -542,7 +543,7 @@ class SpiderDaoInterface:
         else:
             return {"error": f"Unrecognized vote {_vote}"}
 
-        call = self.substrate.compose_call(
+        call = substrate.compose_call(
                 call_module='Democracy',
                 call_function='vote',
                 call_params = {
@@ -571,15 +572,12 @@ class SpiderDaoInterface:
     #Get a Referendum data from chain metadata, map it with the Referendum in DB and return data in Json format
     def get_ref_info(self, ref_index):
 
-        #self.substrate = self.substrate_connect()
-
         rref = None
         dref = {}
 
+        substrate = self.substrate_connect()
         try:
-            self.substrate = self.substrate_connect()
-
-            rref = self.substrate.query(
+            rref = substrate.query(
                 module='Democracy',
                 storage_function='ReferendumInfoOf',
                 params=[int(ref_index)]
@@ -618,8 +616,8 @@ class SpiderDaoInterface:
     #Get proposal info from proposal_hash in simple format
     def get_proposal_info(self, proposal_hash):
 
-        self.substrate = self.substrate_connect()
-        preimage = self.substrate.query(
+        substrate = self.substrate_connect()
+        preimage = substrate.query(
             module='Democracy',
             storage_function='Preimages',
             params=[proposal_hash]
@@ -640,7 +638,7 @@ class SpiderDaoInterface:
         ret_d = None
         try:
             #encoded_proposal = str(d_preimage["Available"]["data"])
-            call = self.substrate.decode_scale('Call', d_preimage["Available"]["data"])
+            call = substrate.decode_scale('Call', d_preimage["Available"]["data"])
 
             call = ast.literal_eval(str(call))
             
@@ -655,7 +653,7 @@ class SpiderDaoInterface:
                 val = p["value"]
 
                 try:
-                    val = self.substrate.ss58_encode(val)
+                    val = substrate.ss58_encode(val)
                 except:
                     val = p["value"]
 
@@ -691,10 +689,11 @@ class SpiderDaoInterface:
         
         last_block_hash = None
         last_block_number = None
+        substrate = self.substrate_connect()
 
         try:
-            last_block_hash = self.substrate.get_chain_head()
-            last_block_number = self.substrate.get_block_number(last_block_hash)
+            last_block_hash = substrate.get_chain_head()
+            last_block_number = substrate.get_block_number(last_block_hash)
         except:
             last_block_number = g_last_block_number
         #get_block_metadata(self, block_hash=None, decode=True):
@@ -836,8 +835,8 @@ class SpiderDaoInterface:
     #Get all referendums in friendly format
     def get_all_refs(self):
 
-        self.substrate = self.substrate_connect()
-        refs_cnt = self.substrate.query(
+        substrate = self.substrate_connect()
+        refs_cnt = substrate.query(
             module='Democracy',
             storage_function='ReferendumCount',
             params=None
@@ -875,8 +874,8 @@ class SpiderDaoInterface:
     #Get all proposals
     def get_props(self):
 
-        self.substrate = self.substrate_connect()
-        props = self.substrate.query(
+        substrate = self.substrate_connect()
+        props = substrate.query(
             module='Democracy',
             storage_function='PublicProps',
             params=None
@@ -1126,6 +1125,7 @@ class SpiderDaoChain:
         )
 
         #self.substrate.update_type_registry_presets()
+        self.substrate = substrate
         return substrate
 
     async def event_process(self, lev, ebh, cb_ch):

@@ -857,7 +857,7 @@ class SpiderDaoInterface:
         #     return None
 
         #DELTRECH
-        for r in range(refs_cnt,-1, 1):
+        for r in range(refs_cnt,-1, -1):
             ref_json = self.get_ref_status(str(r), props=s_props)
             if ref_json is None:
                 continue

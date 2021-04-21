@@ -476,7 +476,7 @@ class SpiderDaoInterface:
         prop_info = {
             "proposer_addr" : self.keypair.ss58_address,
             "proposer_discord_username" : "",
-            "proposer_pubkey" : self.keypair.public_key,
+            "proposer" : self.keypair.public_key,
             "preimage_hash" : preimage_hash,
             "proposal" : prop_dec["proposal"],
             "prop_idx" : PropIndex,
@@ -1013,9 +1013,9 @@ class SpiderDaoInterface:
     def db_set_user(self, PropIndex, username):
 
         #DELTRECH
-        prop = self.proposals_db.get(PropIndex)
-        prop["proposer_discord_username"] = username
-        self.proposals_db.set(PropIndex, prop)
+        # prop = self.proposals_db.get(PropIndex)
+        # prop["proposer_discord_username"] = username
+        # self.proposals_db.set(PropIndex, prop)
         
         return
 
@@ -1040,11 +1040,11 @@ class SpiderDaoInterface:
                     if ep["type"] == "VoteThreshold":
                         ref_dic["VoteThreshold"] = str(ep["value"])
 
-        if ref_dic["PropIndex"] != ref_dic["ReferendumIndex"]:
-            prop = self.proposals_db.get(ref_dic["PropIndex"])
-            prop["ref_idx"] = ref_dic["ReferendumIndex"]
-            self.proposals_db.set(ref_dic["PropIndex"], prop)
-            print("PropIndex -> ReferendumIndex", ref_dic["PropIndex"], ref_dic["ReferendumIndex"])
+        # if ref_dic["PropIndex"] != ref_dic["ReferendumIndex"]:
+        #     prop = self.proposals_db.get(ref_dic["PropIndex"])
+        #     prop["ref_idx"] = ref_dic["ReferendumIndex"]
+        #     self.proposals_db.set(ref_dic["PropIndex"], prop)
+        #     print("PropIndex -> ReferendumIndex", ref_dic["PropIndex"], ref_dic["ReferendumIndex"])
             
         ref_dic["user"] = ref_dic["pub_key"]
 

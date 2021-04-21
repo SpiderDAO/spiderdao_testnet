@@ -293,13 +293,15 @@ async def bot_propose(ctx, *arg):
             🕑 `{launch_period}` "
 
             #Proposals off-chain storage
-            spdr.db_set_user(PropIndex, str(ctx.author)) 
+            #spdr.db_set_user(PropIndex, str(ctx.author)) 
 
             print(f"{ctx.author}: MSG REP PROP", msg_rep)
             await ctx.send(msg_rep)
             
         except Exception as e:
-            print(f"{ctx.author}: Error", str(e))
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
             await ctx.send("2: propose: Something wrong happend!" + str(proposal))
     
     return

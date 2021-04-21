@@ -938,7 +938,7 @@ class SpiderDaoInterface:
                         ref_dic["VoteThreshold"] = str(ep["value"])
 
         if ref_dic["PropIndex"] != ref_dic["ReferendumIndex"]:
-            prop = self.proposals_db.get(PropIndex)
+            prop = self.proposals_db.get(ref_dic["PropIndex"])
             self.proposals_db.set(ref_dic["ReferendumIndex"], prop)
             
         ref_dic["user"] = ref_dic["pub_key"]

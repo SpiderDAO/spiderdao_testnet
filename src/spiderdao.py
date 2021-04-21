@@ -246,7 +246,7 @@ class SpiderDaoInterface:
             name = ar["name"]
             val = params[name]
             if "balance" in ar["type"].lower():
-                val = int(val) * CHAIN_DEC
+                val = float(val) * CHAIN_DEC
 
             params[name] = val
             i = i + 1
@@ -291,7 +291,7 @@ class SpiderDaoInterface:
             name = ar["name"]
             val = args[i]
             if "balance" in ar["type"].lower():
-                val = int(val) * CHAIN_DEC
+                val = float(val) * CHAIN_DEC
 
             params[name] = val
             i = i + 1
@@ -486,7 +486,7 @@ class SpiderDaoInterface:
         lock.acquire()
         self.proposals_db.set(PropIndex, prop_info)
         lock.release()
-        
+
         return proposal
 
     #Second a proposal
@@ -849,6 +849,8 @@ class SpiderDaoInterface:
 
         d_props["current_proposals"] = len(props)
 
+        d_props["proposals"] = []
+        d_props["proposals_idx"] = []
         for p in props:
             prop_idx = str(p['col1'])
             if prop_idx in d_props["proposals_idx"]:

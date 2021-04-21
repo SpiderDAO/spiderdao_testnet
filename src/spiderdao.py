@@ -30,6 +30,7 @@ SUDO_KEY = os.environ.get('SUDO_KEY')
 
 #Keep track of last block number
 g_last_block_number = 0
+lock = threading.Lock()
 
 #Initialize proposals data dictionary
 d_props = {
@@ -482,8 +483,10 @@ class SpiderDaoInterface:
         #proposal_dict[PropIndex] = prop_info
 
         #Store proposal data in DB
+        lock.acquire()
         self.proposals_db.set(PropIndex, prop_info)
-
+        lock.release()
+        
         return proposal
 
     #Second a proposal

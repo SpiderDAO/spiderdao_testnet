@@ -671,7 +671,7 @@ class SpiderDaoInterface:
             ret_d["params"] = params
             ret_d["proposal"] = f"Module: {module_name}\n🧮 Module function: {call_id}\n⌨️ Function parameters: {params_str}"
             ret_d["proposer"] = d_preimage["Available"]["provider"]
-            ret_d["proposer_addr"] = Keypair(public_key=d_preimage["Available"]["provider"]).ss58_address
+            ret_d["proposer_addr"] = Keypair(public_key=str(d_preimage["Available"]["provider"])).ss58_address
             ret_d["deposit"] = float(d_preimage["Available"]["deposit"])/ CHAIN_DEC
             #ret_d["encoded_proposal"] = encoded_proposal
 # 📇 Proposal Index 30
@@ -765,7 +765,7 @@ class SpiderDaoInterface:
                 proposer = prop["proposer_discord_username"]
             else:
                 proposer = prop["proposer_addr"]
-                
+
             proposal_str = prop["proposal"]
 
         _, last_block = self.get_last_block()

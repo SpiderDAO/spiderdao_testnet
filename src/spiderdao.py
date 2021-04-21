@@ -484,7 +484,9 @@ class SpiderDaoInterface:
 
         #Store proposal data in DB
         lock.acquire()
+        print("DB INS", PropIndex, prop_info)
         self.proposals_db.set(PropIndex, prop_info)
+        self.proposals_db.dump()
         lock.release()
 
         return proposal

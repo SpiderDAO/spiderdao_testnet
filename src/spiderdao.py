@@ -472,6 +472,7 @@ class SpiderDaoInterface:
             prop_dec["proposal"] = self.call_ascii
             prop_dec["encoded_proposal"] = None
 
+        #DELTRECH
         prop_info = {
             "proposer_addr" : self.keypair.ss58_address,
             "proposer_discord_username" : "",
@@ -479,8 +480,8 @@ class SpiderDaoInterface:
             "preimage_hash" : preimage_hash,
             "proposal" : prop_dec["proposal"],
             "prop_idx" : PropIndex,
-            "ref_idx" : PropIndex,
-            "encoded_proposal" : prop_dec["encoded_proposal"]
+            "ref_idx" : PropIndex
+            #"encoded_proposal" : prop_dec["encoded_proposal"]
         }
         proposal["prop_info"] = prop_info
         #proposal_dict[PropIndex] = prop_info
@@ -638,8 +639,8 @@ class SpiderDaoInterface:
 
         ret_d = None
         try:
-            encoded_proposal = d_preimage["Available"]["data"]
-            call = self.substrate.decode_scale('Call', encoded_proposal)
+            #encoded_proposal = str(d_preimage["Available"]["data"])
+            call = self.substrate.decode_scale('Call', d_preimage["Available"]["data"])
 
             call = ast.literal_eval(str(call))
             
@@ -672,7 +673,7 @@ class SpiderDaoInterface:
             ret_d["proposer"] = d_preimage["Available"]["provider"]
             ret_d["proposer_addr"] = Keypair(public_key=d_preimage["Available"]["provider"]).ss58_address
             ret_d["deposit"] = float(d_preimage["Available"]["deposit"])/ CHAIN_DEC
-            ret_d["encoded_proposal"] = encoded_proposal
+            #ret_d["encoded_proposal"] = encoded_proposal
 # 📇 Proposal Index 30
 # 👤 Proposed by: 5HMpBMX8PGwNpzo3XAwD1FcqiB69XJhdbhJyt7ZyvgLeF7Am
 # 🧩 Proposal Module: Balances
@@ -854,7 +855,7 @@ class SpiderDaoInterface:
             return None
 
         #DELTRECH
-        for r in range(refs_cnt,-1,-1):
+        for r in range(refs_cnt,-5, 1):
             ref_json = self.get_ref_status(str(r), props=s_props)
             if ref_json is None:
                 continue

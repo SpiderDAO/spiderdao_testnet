@@ -106,11 +106,11 @@ class SpiderDaoInterface:
     #Helper function to set a specific user's balance automatically
     def set_balance(self, addr):
 
-        self.substrate = self.substrate_connect()
+        substrate = self.substrate_connect()
         try:
             keypair = Keypair.create_from_mnemonic(SUDO_KEY)
             #keypair = Keypair.create_from_uri("//Alice")
-            call = self.substrate.compose_call(
+            call = substrate.compose_call(
                 call_module='Balances',
                 call_function='transfer',
                 call_params={
@@ -118,12 +118,12 @@ class SpiderDaoInterface:
                 'value': 10000 * CHAIN_DEC
             })
             
-            extrinsic = self.substrate.create_signed_extrinsic(
+            extrinsic = substrate.create_signed_extrinsic(
                         call=call,
                         keypair=keypair,
                         era={'period': 1000})
 
-            reply = self.substrate.submit_extrinsic(extrinsic, wait_for_inclusion=True, wait_for_finalization=False)
+            reply = substrate.submit_extrinsic(extrinsic, wait_for_inclusion=True, wait_for_finalization=False)
             return True
         except Exception as e:
             print("Balance transfer error", e)
@@ -134,10 +134,10 @@ class SpiderDaoInterface:
 
         print("get_balance of", addr)
         balance = 0
-        self.substrate = self.substrate_connect()
+        substrate = self.substrate_connect()
         try:
 
-            account_info = self.substrate.query(
+            account_info = substrate.query(
                 module='System',
                 storage_function='Account',
                 params=[addr]

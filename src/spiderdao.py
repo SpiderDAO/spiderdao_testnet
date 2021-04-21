@@ -897,7 +897,7 @@ class SpiderDaoInterface:
             return []
 
         print("s_props", s_props)
-        for prop_idx in list(s_props): 
+        for prop_idx in s_props: 
 
             print("prop_idx", prop_idx, props)
             if str(prop_idx) not in props["proposals_idx"]:

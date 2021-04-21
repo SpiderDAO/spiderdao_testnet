@@ -760,7 +760,12 @@ class SpiderDaoInterface:
         proposal_str = None
         if "proposal" in ref:
             prop = self.get_proposal_info(preimage_hash)
-            proposer = prop["proposer_addr"] if prop["proposer_discord_username"] == "" else prop["proposer_discord_username"]
+
+            if "proposer_discord_username" in prop:
+                proposer = prop["proposer_discord_username"]
+            else:
+                proposer = prop["proposer_addr"]
+                
             proposal_str = prop["proposal"]
 
         _, last_block = self.get_last_block()
@@ -954,7 +959,12 @@ class SpiderDaoInterface:
             return None
 
         prop = self.get_proposal_info(preimage_hash)
-        proposer = prop["proposer_addr"] if prop["proposer_discord_username"] == "" else prop["proposer_discord_username"]
+        proposer = ""
+        if "proposer_discord_username" in prop:
+            proposer = prop["proposer_discord_username"]
+        else:
+            proposer = prop["proposer_addr"]
+            
         proposal_str = prop["proposal"]
 
         # if not self.proposals_db.exists(prop_idx):

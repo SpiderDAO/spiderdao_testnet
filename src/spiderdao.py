@@ -718,11 +718,7 @@ class SpiderDaoInterface:
         #{'status': 'Ongoing', 'end_block': 23300, 'proposal': '0x9d82789583cecb141eff0a86420cd088a0526d0cea40dc6c77e42cfe0b556e3d', 'ayes': 1, 'nays': 0, 'total_votes': 1}
 
         ref_json = {}
-        if props == None:
-            props = self.get_props()
 
-        if len(list(props)) == 0:
-            return None
 
             #DELTRECH
             # prop_idx = str(p['col1'])
@@ -857,8 +853,8 @@ class SpiderDaoInterface:
         ref_th = []
 
         s_props = self.get_props()
-        if len(list(s_props)) == 0:
-            return None
+        # if len(list(s_props)) == 0:
+        #     return None
 
         #DELTRECH
         for r in range(refs_cnt,-5, 1):

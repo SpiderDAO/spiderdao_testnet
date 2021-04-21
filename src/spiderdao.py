@@ -743,11 +743,12 @@ class SpiderDaoInterface:
         preimage_hash = ""
         #If the Referendum is not ended, if ended will not show proposal hash as shown in sample output above
         if "proposal" in ref:
-            for p in props["proposals"]:
-                if p["proposal_hash"] == ref["proposal"]:
-                    prop_idx = p
-                    preimage_hash = p["proposal_hash"]
-                    break
+            preimage_hash = ref["proposal"]
+            # for p in props["proposals"]:
+            #     if p["proposal_hash"] == ref["proposal"]:
+            #         prop_idx = p
+            #         preimage_hash = p["proposal_hash"]
+            #         break
         # #if prop_index not in proposal_dict:
         # if not self.proposals_db.exists(prop_idx):
         #     #ref_msg = ref_msg + " Not Found #1"

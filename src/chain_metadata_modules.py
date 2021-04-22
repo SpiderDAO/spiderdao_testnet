@@ -39,7 +39,7 @@ for d in data:
         modid = d["module_id"]
         if c == "call_name":
             func_name = d[c]
-            if c not in list(dao_functions.keys()):
+            if func_name not in list(dao_functions.keys()):
                 continue
 
             doc = d["documentation"]

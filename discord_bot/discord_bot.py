@@ -503,8 +503,8 @@ def parse_refstarted(ledx):
             ref_dic["username"] = bot_users[u]["keypair"].ss58_address
 
     if ref_dic["username"] is None:
-        ref_dic["username"] = Keypair(public_key=str(d_preimage["Available"]["provider"]), ss58_format=42).ss58_address
-        
+        ref_dic["username"] = Keypair(public_key=str(ref_dic["pub_key"]), ss58_format=42).ss58_address
+
     return ref_dic
 
 dup_ref_started = []

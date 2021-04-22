@@ -468,6 +468,7 @@ def second():
 
         second = {}
         second["block_hash"] = block_hash
+        second["prop_index"] = jso["prop_index"]
 
         return jsonify(second)
     

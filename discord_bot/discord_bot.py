@@ -163,7 +163,7 @@ async def bot_help(ctx, *arg):
     print(*arg)
     
     h_m = "modules"
-    if "" == str(arg).strip():
+    if "" == str(*arg).strip():
         h_m = "modules"
     else:
         h_m = arg[0].strip()

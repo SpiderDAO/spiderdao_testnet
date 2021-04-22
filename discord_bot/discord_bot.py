@@ -497,10 +497,14 @@ def parse_refstarted(ledx):
                 if ep["type"] == "VoteThreshold":
                     ref_dic["VoteThreshold"] = str(ep["value"])
 
+    ref_dic["username"] = None
     for u in bot_users:
         if bot_users[u]["keypair"].public_key == ref_dic["pub_key"]:
             ref_dic["username"] = bot_users[u]["keypair"].ss58_address
 
+    if ref_dic["username"] is None:
+        ref_dic["username"] = Keypair(public_key=str(d_preimage["Available"]["provider"]), ss58_format=42).ss58_address
+        
     return ref_dic
 
 dup_ref_started = []

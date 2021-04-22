@@ -28,12 +28,13 @@ logger.addHandler(stdout_handler)
 
 def print_logs(*argv):
 
+    print(*argv)
     log_str = ""
     for arg in argv: 
             log_str += " " + str(arg)
     
     logger.debug(log_str)
-    
+
     return
 
 botcalls = botcalls_mods
@@ -551,7 +552,7 @@ async def send_referendum_started(ledx, ebh):
 
     if ReferendumIndex in dup_ref_started:
         print_logs("send_referendum_started DUPLICATE", msg_rep)
-        if len(dup_ref_started) > 5: 
+        if len(dup_ref_started) > 10: 
             dup_ref_started = []
         return
 
@@ -593,7 +594,7 @@ async def send_referendum_results(ledx, ebh):
 
     if ReferendumIndex in dup_ref_results:
         print_logs("send_referendum_results DUPLICATE", msg_rep)
-        if len(dup_ref_results) > 5:
+        if len(dup_ref_results) > 10:
             dup_ref_results = []
         return
 

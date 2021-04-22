@@ -1147,7 +1147,7 @@ class SpiderDaoChain:
             try:
                 ebh = self.substrate.get_chain_head()
                 if ebh is None:
-                    await asyncio.sleep(4)
+                    await asyncio.sleep(1)
                     continue
 
                 ebh = str(ebh)
@@ -1160,4 +1160,4 @@ class SpiderDaoChain:
                 print(e)
                 pass
             
-            await asyncio.sleep(4)
+            await asyncio.sleep(1)

@@ -19,6 +19,11 @@ botcalls_mods = {}
 #Chain modules in json format for logic and filteration
 chain_modules = {}
 
+dao_functions = {
+    "transfer" : "Propose Transfer",
+    "propose_bounty" : "Custom Proposal",
+    "award_bounty" : "Custom Proposal",
+}
 #Convert the chain modules json to a simpler format
 for d in data:
     if d["module_id"] not in modules_filt:
@@ -33,6 +38,10 @@ for d in data:
     for c in d:
         modid = d["module_id"]
         if c == "call_name":
+            func_name = d[c]
+            if c not in list(dao_functions.keys()):
+                continue
+
             doc = d["documentation"]
             if "\n" in doc: #Not full documentation added to save message space
                 doc = doc.split("\n")[0]
@@ -45,9 +54,11 @@ for d in data:
                 jrgs.append(ma)
             
             sargs = f'({", ".join(mrgs)})'
-            modd = f"⚡️ {d[c]} {sargs} \t  💎 Help: {doc}" 
+            modd = f"⚡️ {func_name} {sargs} \t  💎 Help: {doc}" 
             botcalls_mods[modid].append(modd)
-            chain_modules[modid][d[c]] = {}
-            chain_modules[modid][d[c]]["args"] = jrgs
-            chain_modules[modid][d[c]]["doc"] = d["documentation"]
+            chain_modules[modid][func_name] = {}
+            chain_modules[modid][func_name]["args"] = jrgs
+            chain_modules[modid][func_name]["doc"] = d["documentation"]
+            chain_modules[modid][func_name]["display_name"] = dao_functions[func_name]
+            chain_modules[modid][func_name]["func_name"] = func_name
 

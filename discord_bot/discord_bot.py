@@ -499,7 +499,7 @@ def parse_refstarted(ledx):
 
     for u in bot_users:
         if bot_users[u]["keypair"].public_key == ref_dic["pub_key"]:
-            ref_dic["username"] = u
+            ref_dic["username"] = bot_users[u]["keypair"].ss58_address
 
     return ref_dic
 
@@ -510,7 +510,6 @@ async def send_referendum_started(ledx, ebh):
     global dup_ref_started
     
     dex = parse_refstarted(ledx)
-    print("pub_channel_id", pub_channel_id)
     pub_channel = bot.get_channel(pub_channel_id)
     ReferendumIndex = str(dex["ReferendumIndex"])
     PropIndex = dex["PropIndex"]

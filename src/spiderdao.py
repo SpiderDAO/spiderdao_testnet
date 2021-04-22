@@ -399,44 +399,50 @@ class SpiderDaoInterface:
             return call_params
 
         #print("ARG", arg, call_params)
-        call, call_ascii, encoded_proposal = self.create_substrate_call(call_params)
+        try:
+            call, call_ascii, encoded_proposal = self.create_substrate_call(call_params)
 
-        self.encoded_proposal = encoded_proposal
-        self.call_ascii = call_ascii
-        block_hash = None
-        ev_bh = None
+            self.encoded_proposal = encoded_proposal
+            self.call_ascii = call_ascii
+            block_hash = None
+            ev_bh = None
 
-        block_hash = self.note_preimage(encoded_proposal)
-        if "error" in block_hash:
-            return block_hash
+            block_hash = self.note_preimage(encoded_proposal)
+            if "error" in block_hash:
+                return block_hash
 
-        ev_bh = substrate.get_events(block_hash=block_hash)
+            ev_bh = substrate.get_events(block_hash=block_hash)
 
-        preimage_hash = ""
-        storageFee = -1
+            preimage_hash = ""
+            storageFee = -1
 
-        lev = list(ev_bh)
-        for ev in lev:
-            if ev.event_index == "1e0b": #'event_id': 'PreimageNoted'
-                pl = list(ev.params)
-                for p in pl:
-                    if p["type"] == "Hash":
-                        preimage_hash = p["value"]
-                    if p["type"] == "Balance":
-                        storageFee = p["value"] / CHAIN_DEC
-                        
-        if preimage_hash == "" or storageFee < 0:
-            err_dic = {"error" : "duplicate proposal"}
+            lev = list(ev_bh)
+            for ev in lev:
+                if ev.event_index == "1e0b": #'event_id': 'PreimageNoted'
+                    pl = list(ev.params)
+                    for p in pl:
+                        if p["type"] == "Hash":
+                            preimage_hash = p["value"]
+                        if p["type"] == "Balance":
+                            storageFee = p["value"] / CHAIN_DEC
+                            
+            if preimage_hash == "" or storageFee < 0:
+                err_dic = {"error" : "duplicate proposal"}
+                return err_dic
+
+            proposal = {}
+            proposal["preimage_hash"] = str(preimage_hash)
+            proposal["storageFee"] = storageFee
+            proposal["call"] = call_ascii
+            proposal["block_hash"] = block_hash
+            #proposal["result"] = lev
+
+            return proposal
+        except Exception as e:
+            print("pre_propose error", str(e))
+            err_dic = {}
+            err_dic["error"] = "Error while creating the propose call"
             return err_dic
-
-        proposal = {}
-        proposal["preimage_hash"] = str(preimage_hash)
-        proposal["storageFee"] = storageFee
-        proposal["call"] = call_ascii
-        proposal["block_hash"] = block_hash
-        #proposal["result"] = lev
-
-        return proposal
 
     #Actual Propose transaction
     def propose(self, preimage_hash):

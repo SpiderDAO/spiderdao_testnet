@@ -4,9 +4,37 @@ from substrateinterface import SubstrateInterface, Keypair
 import asyncio
 import os
 import sys
+import logging
+import sys
 
 sys.path.insert(0, '../src')
 from spiderdao import *
+
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s | %(message)s')
+
+stdout_handler = logging.StreamHandler(sys.stdout)
+stdout_handler.setLevel(logging.DEBUG)
+stdout_handler.setFormatter(formatter)
+
+file_handler = logging.FileHandler('bot_logs.log')
+file_handler.setLevel(logging.DEBUG)
+file_handler.setFormatter(formatter)
+
+logger.addHandler(file_handler)
+logger.addHandler(stdout_handler)
+
+def print_logs(*argv):
+
+    log_str = ""
+    for arg in argv: 
+            log_str += " " + str(arg)
+    
+    logger.debug(log_str)
+    
+    return
 
 botcalls = botcalls_mods
 
@@ -31,11 +59,11 @@ pub_channel = bot.get_channel(pub_channel_id)
 
 async def cb_ch(event_index, lev, ebh):
     if event_index == "1e01": #'event_id': 'Tabled'
-        print("CALLED send_referendum_started")
+        print_logs("CALLED send_referendum_started")
         await send_referendum_started(lev, ebh)
     
     if event_index == "1e04" or event_index == "1e05": #'event_id': 'Passed' or 'NotPassed'
-        print("CALLED send_referendum_results")
+        print_logs("CALLED send_referendum_results")
         await send_referendum_results(lev, ebh)
 
     return
@@ -46,10 +74,10 @@ chain_evs = None
 try:
     chain_evs = SpiderDaoChain(chain_events_cb=cb_ch)
 except:
-    print("Couldn't start SpiderDAOChain, check that the chain is running")
+    print_logs("Couldn't start SpiderDAOChain, check that the chain is running")
     sys.exit(0)
 
-print("SpiderDAO BOT START")
+print_logs("SpiderDAO BOT START")
 
 democracy_commands = [
     "!helpall modules",
@@ -68,13 +96,13 @@ democracy_commands = [
 async def on_command_error(ctx, error):
     
     rep_cmd_err = f"{str(error)}, Available Commands:\n"+" 👈\n".join(democracy_commands)
-    print("BOT ERROR", str(error))
+    print_logs("BOT ERROR", str(error))
     await ctx.send(rep_cmd_err)
     return
 
 @bot.command(name='hi', help='Shows bot commands')
 async def bot_greet(ctx, *arg):
-    print(*arg)
+    print_logs(*arg)
     await ctx.send("Available Commands:\n"+" 👈\n".join(democracy_commands))
 
 @bot.command(name='wallet', help='Create or Import wallet')
@@ -114,7 +142,7 @@ async def bot_wallet(ctx, *arg):
             await ctx.send(f"Wallet Created:\n{wallet_info}")
         
         elif cmd == "import":
-            print("AUTHOR", ctx.author)
+            print_logs("AUTHOR", ctx.author)
             mnemonic = arg[1].strip()
 
             spdr = None
@@ -160,7 +188,7 @@ async def bot_wallet(ctx, *arg):
 
 @bot.command(name='helpall', help='Bot Help')
 async def bot_help(ctx, *arg):
-    print(*arg)
+    print_logs(*arg)
     
     h_m = "modules"
     if "" == str(*arg).strip():
@@ -194,7 +222,7 @@ async def bot_help(ctx, *arg):
 
 @bot.command(name='helpmods', help='Modules usage')
 async def bot_help(ctx, *arg):
-    print(*arg)
+    print_logs(*arg)
 
     if len(arg) != 1:
         await ctx.send(f"!helpmods [module_name]")
@@ -228,7 +256,7 @@ async def send_balance(ctx, *arg):
     try:
         balance = spdr.send_balance(address, value)
     except Exception as e:
-        print("Balance sending error", e)
+        print_logs("Balance sending error", e)
         await ctx.send(f"!send [address] [value], e.g !send 5CiPPseXPECbkjWCa6MnjNokrgYjMqmKndv2rSnekmSK2DjL 10")
         return
 
@@ -295,13 +323,13 @@ async def bot_propose(ctx, *arg):
             #Proposals off-chain storage
             #spdr.db_set_user(PropIndex, str(ctx.author)) 
 
-            print(f"{ctx.author}: MSG REP PROP", msg_rep)
+            print_logs(f"{ctx.author}: MSG REP PROP", msg_rep)
             await ctx.send(msg_rep)
             
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(exc_type, fname, exc_tb.tb_lineno)
+            print_logs(exc_type, fname, exc_tb.tb_lineno)
             await ctx.send("2: propose: Something wrong happend!" + str(proposal))
     
     return
@@ -331,7 +359,7 @@ async def bot_second(ctx, *arg):
             await ctx.send(f"✅ You `Seconded` Proposal `{prop_index}`")
 
         except Exception as e:
-            print(f"{ctx.author}: Error", str(e))
+            print_logs(f"{ctx.author}: Error", str(e))
             await ctx.send("Something wrong happend!, `!second`")
     return
 
@@ -392,7 +420,7 @@ async def bot_getbalance(ctx, *arg):
         balance = str(round(float(balance / spdr.CHAIN_DEC), 4))
 
         msg_rep = f"💰 Balance `{balance}` SPDR"
-        print(f"{ctx.author} {msg_rep}")
+        print_logs(f"{ctx.author} {msg_rep}")
         await ctx.send(msg_rep)
 
 @bot.command(name='ref', help='Get Referendum info `!ref [ref_index]`')
@@ -412,7 +440,7 @@ async def bot_getrefinfo(ctx, *arg):
 
     spdr = SpiderDaoInterface(keypair=bot_users[ctx.author]["keypair"]) #RECHECK
 
-    print(f"{ctx.author}: REFINFO", ref_idx, _all)
+    print_logs(f"{ctx.author}: REFINFO", ref_idx, _all)
 
     ret_ref_list = []
     async with ctx.typing():
@@ -433,7 +461,7 @@ async def bot_getrefinfo(ctx, *arg):
             else:
                 ref_msg = ref_msg["ref_msg"]
 
-    print("REFMSG", ref_msg)
+    print_logs("REFMSG", ref_msg)
     await ctx.send(ref_msg)
 
 @bot.command(name='proposals', help='Get Proposals')
@@ -455,7 +483,7 @@ async def bot_getprops(ctx, *arg):
 
         spdr = SpiderDaoInterface(keypair=bot_users[ctx.author]["keypair"])
 
-        print(f"{ctx.author}: PROPINFO", prop_idx, _all)
+        print_logs(f"{ctx.author}: PROPINFO", prop_idx, _all)
 
         prop = None
         ret_prop_list = []
@@ -474,7 +502,7 @@ async def bot_getprops(ctx, *arg):
             if props_msg is not None:
                 props_msg = props_msg["prop_msg"]
         
-    print("Sending prop_msg", ctx.author, props_msg)
+    print_logs("Sending prop_msg", ctx.author, props_msg)
     await ctx.send(props_msg)
 
 def parse_refstarted(ledx):
@@ -522,16 +550,16 @@ async def send_referendum_started(ledx, ebh):
         To Vote call: !vote `{ReferendumIndex}` [yes|no]"
 
     if ReferendumIndex in dup_ref_started:
-        print("send_referendum_started DUPLICATE", msg_rep)
+        print_logs("send_referendum_started DUPLICATE", msg_rep)
         if len(dup_ref_started) > 5: 
             dup_ref_started = []
         return
 
     dup_ref_started.append(ReferendumIndex) #Event is sent two times for some reason, this removes duplicate event
 
-    print("*** send_referendum_started MSG_REP", msg_rep)
+    print_logs("*** send_referendum_started MSG_REP", msg_rep)
     loop.create_task(pub_channel.send(msg_rep))
-    print("REF DEX", dex)
+    print_logs("REF DEX", dex)
     return
 
 def parse_refresult(ledx):
@@ -564,7 +592,7 @@ async def send_referendum_results(ledx, ebh):
     msg_rep = f"Referendum `{ReferendumIndex}` Result `{result}`"
 
     if ReferendumIndex in dup_ref_results:
-        print("send_referendum_results DUPLICATE", msg_rep)
+        print_logs("send_referendum_results DUPLICATE", msg_rep)
         if len(dup_ref_results) > 5:
             dup_ref_results = []
         return

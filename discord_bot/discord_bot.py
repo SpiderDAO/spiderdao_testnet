@@ -523,7 +523,8 @@ async def send_referendum_started(ledx, ebh):
 
     if ReferendumIndex in dup_ref_started:
         print("send_referendum_started DUPLICATE", msg_rep)
-        dup_ref_started = []
+        if len(dup_ref_started) > 5: 
+            dup_ref_started = []
         return
 
     dup_ref_started.append(ReferendumIndex) #Event is sent two times for some reason, this removes duplicate event
@@ -564,7 +565,8 @@ async def send_referendum_results(ledx, ebh):
 
     if ReferendumIndex in dup_ref_results:
         print("send_referendum_results DUPLICATE", msg_rep)
-        dup_ref_results = []
+        if len(dup_ref_results) > 5:
+            dup_ref_results = []
         return
 
     dup_ref_results.append(ReferendumIndex) #Event is sent two times for some reason, this removes duplicate event

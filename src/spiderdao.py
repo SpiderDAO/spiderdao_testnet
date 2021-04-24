@@ -7,6 +7,7 @@ import time
 import timeago
 import datetime
 import pickledb
+import websocket
 
 from scalecodec.type_registry import load_type_registry_preset
 #from scalecodec.updater import update_type_registries
@@ -92,8 +93,17 @@ class SpiderDaoInterface:
         self.call_ascii = None
         self.tmp_refs = []
 
+    def check_ws_connection(self):
+
+        self.substrate.websocket.recv()
+        return self.substrate.websocket.connected
+        
     #Connect to the chain
     def substrate_connect(self):
+
+        if check_ws_connection:
+            return self.substrate
+
         substrate = SubstrateInterface(
                     url=self.node_url,
                     ss58_format=42,
@@ -332,7 +342,6 @@ class SpiderDaoInterface:
         Address: `{ self.keypair.ss58_address}`\n \
         Public Key: `{ self.keypair.public_key}`\n \
         Private key: `{ self.keypair.private_key}`\n"
-        #print(f"Keypair:\n{wallet_info}")
 
         extrinsic = substrate.create_signed_extrinsic(
                     call=call,
@@ -492,13 +501,6 @@ class SpiderDaoInterface:
         }
         proposal["prop_info"] = prop_info
         #proposal_dict[PropIndex] = prop_info
-
-        # #Store proposal data in DB
-        
-        # print("DB INS", PropIndex, prop_info)
-        # self.proposals_db.set(PropIndex, prop_info)
-        # self.proposals_db.dump()
-        # lock.release()
 
         return proposal
 
@@ -1123,7 +1125,17 @@ class SpiderDaoChain:
         asyncio.run(self.get_chain_head(chain_events_cb))
         return
 
+    def check_ws_connection(self):
+
+        self.substrate.websocket.recv()
+        return self.substrate.websocket.connected
+        
+    #Connect to the chain
     def substrate_connect(self):
+
+        if check_ws_connection:
+            return self.substrate
+
         substrate = SubstrateInterface(
                     url=self.node_url,
                     ss58_format=42,
@@ -1147,7 +1159,7 @@ class SpiderDaoChain:
             try:
                 ebh = self.substrate.get_chain_head()
                 if ebh is None:
-                    await asyncio.sleep(1)
+                    await asyncio.sleep(4)
                     continue
 
                 ebh = str(ebh)
@@ -1160,4 +1172,4 @@ class SpiderDaoChain:
                 print(e)
                 pass
             
-            await asyncio.sleep(1)
+            await asyncio.sleep(4)

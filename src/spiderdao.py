@@ -101,7 +101,7 @@ class SpiderDaoInterface:
     #Connect to the chain
     def substrate_connect(self):
 
-        if check_ws_connection:
+        if self.check_ws_connection():
             return self.substrate
 
         substrate = SubstrateInterface(
@@ -1133,7 +1133,7 @@ class SpiderDaoChain:
     #Connect to the chain
     def substrate_connect(self):
 
-        if check_ws_connection:
+        if self.check_ws_connection():
             return self.substrate
 
         substrate = SubstrateInterface(

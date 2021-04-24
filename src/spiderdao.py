@@ -115,6 +115,7 @@ class SpiderDaoInterface:
     def set_balance(self, addr):
 
         substrate = self.substrate_connect()
+        ret = False
         try:
             keypair = Keypair.create_from_mnemonic(SUDO_KEY)
             #keypair = Keypair.create_from_uri("//Alice")
@@ -132,11 +133,14 @@ class SpiderDaoInterface:
                         era={'period': 1000})
 
             reply = substrate.submit_extrinsic(extrinsic, wait_for_inclusion=True, wait_for_finalization=False)
-            return True
+            ret = True
         except Exception as e:
             print("Balance transfer error", e)
-            return False
+            ret = False
 
+        substrate.close()
+        return ret
+        
     #Get user's balance
     def get_balance(self, addr):
 
@@ -155,6 +159,7 @@ class SpiderDaoInterface:
         except Exception as e:
             print("Retrieving balance error", str(e))
 
+        substrate.close()
         return balance
 
     #Send balance
@@ -184,6 +189,8 @@ class SpiderDaoInterface:
                         era={'period': 64})
 
             reply = substrate.submit_extrinsic(extrinsic, wait_for_inclusion=True, wait_for_finalization=False)
+            substrate.close()
+
             extrinsic_hash = str(reply['extrinsic_hash'])
             ret_dic["success"] = "Balance of {} SPDR Transferred to {}".format(value, addr)
             ret_dic["block_hash"] = extrinsic_hash
@@ -326,6 +333,7 @@ class SpiderDaoInterface:
         print("call", call_ascii)
         print("encoded_proposal", encoded_proposal)
 
+        substrate.close()
         return call, call_ascii, encoded_proposal
 
     #Execute the call
@@ -352,8 +360,10 @@ class SpiderDaoInterface:
             print("Network Error", f"Call: {call}", e)
             reply = {}
             reply["error"] = str(e)
+            substrate.close()
             return reply
 
+        substrate.close()
         return reply["block_hash"]
 
     #Get proposal index from supplied list of events `lev`
@@ -380,7 +390,8 @@ class SpiderDaoInterface:
                 'encoded_proposal': encoded_proposal
             }
         )
-
+        substrate.close()
+        
         block_hash = self.submit_extrinsic(call)
         if "error" in block_hash:
             return block_hash
@@ -442,12 +453,14 @@ class SpiderDaoInterface:
             proposal["call"] = call_ascii
             proposal["block_hash"] = block_hash
             #proposal["result"] = lev
-
+            
+            substrate.close()
             return proposal
         except Exception as e:
             print("pre_propose error", str(e))
             err_dic = {}
             err_dic["error"] = "Error while creating the propose call"
+            substrate.close()
             return err_dic
 
     #Actual Propose transaction
@@ -498,6 +511,7 @@ class SpiderDaoInterface:
         }
         proposal["prop_info"] = prop_info
         #proposal_dict[PropIndex] = prop_info
+        substrate.close()
 
         return proposal
 
@@ -521,6 +535,7 @@ class SpiderDaoInterface:
                     'seconds_upper_bound' : 6,
             }
         )
+        substrate.close()
 
         block_hash = self.submit_extrinsic(call)
         if "error" in block_hash:
@@ -562,6 +577,7 @@ class SpiderDaoInterface:
                 }
         )
         
+        substrate.close()
         #self.wait_for_finalization = True
         block_hash = self.submit_extrinsic(call)
         #self.wait_for_finalization = False
@@ -616,6 +632,7 @@ class SpiderDaoInterface:
             dref["approved"] = "yes" if ref["approved"] else "no"
             dref["end_block"] = ref["end"]
 
+        substrate.close()
         return dref
 
     #Get proposal info from proposal_hash in simple format
@@ -677,16 +694,11 @@ class SpiderDaoInterface:
             ret_d["proposer_addr"] = Keypair(public_key=str(d_preimage["Available"]["provider"]), ss58_format=42).ss58_address
             ret_d["deposit"] = float(d_preimage["Available"]["deposit"])/ CHAIN_DEC
             #ret_d["encoded_proposal"] = encoded_proposal
-# 📇 Proposal Index 30
-# 👤 Proposed by: 5HMpBMX8PGwNpzo3XAwD1FcqiB69XJhdbhJyt7ZyvgLeF7Am
-# 🧩 Proposal Module: Balances
-# 🧮 Module function: transfer
-# ⌨️ Function parameters: dest:5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
-# 🔢 Value:59.0
 
         except Exception as e:
             print("Error decoding proposal hash", str(e))
 
+        substrate.close()
         return ret_d
 
     #Return last block number and hash from the chain
@@ -702,6 +714,7 @@ class SpiderDaoInterface:
         except:
             last_block_number = g_last_block_number
         #get_block_metadata(self, block_hash=None, decode=True):
+        substrate.close()
         return last_block_hash, last_block_number
 
     #Parse Referendum data into UI friendly format
@@ -723,39 +736,12 @@ class SpiderDaoInterface:
 
         ref_json = {}
 
-
-            #DELTRECH
-            # prop_idx = str(p['col1'])
-            # if prop_idx in d_props["proposals_idx"]:
-            #     continue
-
-            # proposal = {}
-            # proposal["prop_idx"] = prop_idx
-            # proposal["proposal_hash"] = p['col2']
-            # proposal["proposed_by"] = p['col3']
-
-            # d_props["proposal_hash_idx"] = {prop_idx : p['col2']}
-            # d_props["proposals"].append(proposal)
-            # d_props["proposals_idx"].append(prop_idx)
-
-
         prop_idx = "-1"
         preimage_hash = ""
         #If the Referendum is not ended, if ended will not show proposal hash as shown in sample output above
         if "proposal" in ref:
             preimage_hash = ref["proposal"]
-            # for p in props["proposals"]:
-            #     if p["proposal_hash"] == ref["proposal"]:
-            #         prop_idx = p
-            #         preimage_hash = p["proposal_hash"]
-            #         break
-        # #if prop_index not in proposal_dict:
-        # if not self.proposals_db.exists(prop_idx):
-        #     #ref_msg = ref_msg + " Not Found #1"
-        #     #ref_json["ref_msg"] = ref_msg
-        #     return None
 
-        #prop = self.proposals_db.get(prop_idx)
         prop = None
         proposer = None
         proposal_str = None
@@ -771,8 +757,6 @@ class SpiderDaoInterface:
 
         _, last_block = self.get_last_block()
         if "status" not in ref:
-            #ref_msg = ref_msg + " Not Found #2"
-            #ref_json["ref_msg"] = ref_msg
             return None
 
         if ref["status"] == "Finished":
@@ -846,6 +830,7 @@ class SpiderDaoInterface:
             storage_function='ReferendumCount',
             params=None
         )
+        substrate.close()
 
         refs_cnt = int(str(refs_cnt))
         print("ReferendumCount", refs_cnt)
@@ -885,6 +870,7 @@ class SpiderDaoInterface:
             storage_function='PublicProps',
             params=None
         )
+        substrate.close()
 
         if props is None:
             d_props["current_proposals"] = 0

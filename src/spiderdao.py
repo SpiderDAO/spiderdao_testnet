@@ -94,15 +94,16 @@ class SpiderDaoInterface:
         self.tmp_refs = []
 
     def check_ws_connection(self):
-
+        
         self.substrate.websocket.recv()
         return self.substrate.websocket.connected
         
     #Connect to the chain
     def substrate_connect(self):
 
-        if self.check_ws_connection():
-            return self.substrate
+        if self.substrate is not None:
+            if self.check_ws_connection():
+                return self.substrate
 
         substrate = SubstrateInterface(
                     url=self.node_url,
@@ -1133,8 +1134,9 @@ class SpiderDaoChain:
     #Connect to the chain
     def substrate_connect(self):
 
-        if self.substrate is not None and self.check_ws_connection():
-            return self.substrate
+        if self.substrate is not None:
+            if self.check_ws_connection():
+                return self.substrate
 
         substrate = SubstrateInterface(
                     url=self.node_url,

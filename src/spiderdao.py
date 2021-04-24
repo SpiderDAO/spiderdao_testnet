@@ -93,23 +93,19 @@ class SpiderDaoInterface:
         self.call_ascii = None
         self.tmp_refs = []
 
-    def check_ws_connection(self):
-        
-        self.substrate.websocket.recv()
-        return self.substrate.websocket.connected
-        
+
     #Connect to the chain
     def substrate_connect(self):
 
-        if self.substrate is not None:
-            if self.check_ws_connection():
-                return self.substrate
-
-        substrate = SubstrateInterface(
-                    url=self.node_url,
-                    ss58_format=42,
-                    type_registry_preset='westend',
-        )
+        substrate = None
+        try:
+            substrate = SubstrateInterface(
+                        url=self.node_url,
+                        ss58_format=42,
+                        type_registry_preset='westend',
+            )
+        except Exception as e:
+            print("Error creating substrate connection", str(e))
 
         #self.substrate.update_type_registry_presets()
         self.substrate = substrate
@@ -1126,24 +1122,19 @@ class SpiderDaoChain:
         asyncio.run(self.get_chain_head(chain_events_cb))
         return
 
-    def check_ws_connection(self):
-        
-        self.substrate.websocket.recv()
-        return self.substrate.websocket.connected
-        
     #Connect to the chain
     def substrate_connect(self):
 
-        if self.substrate is not None:
-            if self.check_ws_connection():
-                return self.substrate
-
-        substrate = SubstrateInterface(
-                    url=self.node_url,
-                    ss58_format=42,
-                    type_registry_preset='westend',
-        )
-
+        substrate = None
+        try:
+            substrate = SubstrateInterface(
+                        url=self.node_url,
+                        ss58_format=42,
+                        type_registry_preset='westend',
+            )
+        except Exception as e:
+            print("Error creating substrate connection", str(e))
+            
         #self.substrate.update_type_registry_presets()
         self.substrate = substrate
         return substrate

@@ -87,7 +87,6 @@ class SpiderDaoInterface:
                 return None
 
         #Init DB
-        self.proposals_db = pickledb.load('../db/proposals.db', True, False)
         self._chain_modules = chain_modules
         self.encoded_proposal = None
         self.call_ascii = None
@@ -391,7 +390,7 @@ class SpiderDaoInterface:
             }
         )
         substrate.close()
-        
+
         block_hash = self.submit_extrinsic(call)
         if "error" in block_hash:
             return block_hash
@@ -953,13 +952,6 @@ class SpiderDaoInterface:
             
         proposal_str = prop["proposal"]
 
-        # if not self.proposals_db.exists(prop_idx):
-        #     print(f"Proposal {prop_idx} doesn't exist in DB")
-        #     return None
-
-        # prop = self.proposals_db.get(prop_idx)
-        # proposer = prop["proposer_addr"] if prop["proposer_discord_username"] == "" else prop["proposer_discord_username"]
-        # proposal_str = prop["proposal"]
         prop_msg = f"\
 📇 Proposal Index {prop_idx}\n \
 👤 Proposed by: {proposer}\n \
@@ -980,9 +972,6 @@ class SpiderDaoInterface:
             return []
 
         proposals_list = []
-        # s_props = self.proposals_db.getall()
-        # if len(list(s_props)) == 0:
-        #     return []
 
         # print("s_props", s_props)
         for prop_idx in props["proposals_idx"]: 
@@ -1000,11 +989,6 @@ class SpiderDaoInterface:
 
     #If proposal originated from Discord bot user, username is stored in DB here
     def db_set_user(self, PropIndex, username):
-
-        #DELTRECH
-        # prop = self.proposals_db.get(PropIndex)
-        # prop["proposer_discord_username"] = username
-        # self.proposals_db.set(PropIndex, prop)
         
         return
 
@@ -1028,12 +1012,6 @@ class SpiderDaoInterface:
 
                     if ep["type"] == "VoteThreshold":
                         ref_dic["VoteThreshold"] = str(ep["value"])
-
-        # if ref_dic["PropIndex"] != ref_dic["ReferendumIndex"]:
-        #     prop = self.proposals_db.get(ref_dic["PropIndex"])
-        #     prop["ref_idx"] = ref_dic["ReferendumIndex"]
-        #     self.proposals_db.set(ref_dic["PropIndex"], prop)
-        #     print("PropIndex -> ReferendumIndex", ref_dic["PropIndex"], ref_dic["ReferendumIndex"])
             
         ref_dic["user"] = ref_dic["pub_key"]
 

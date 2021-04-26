@@ -28,12 +28,11 @@ logger.addHandler(stdout_handler)
 
 def print_logs(*argv):
 
-    print(*argv)
     log_str = ""
     for arg in argv: 
             log_str += " " + str(arg)
     
-    logger.debug(log_str)
+    logger.info(log_str)
 
     return
 
@@ -347,10 +346,6 @@ async def bot_second(ctx, *arg):
         try:
             prop_index = str(arg[0]) ##RECHECK
             spdr = SpiderDaoInterface(keypair=bot_users[ctx.author]["keypair"])
-
-            if not proposals_db.exists(prop_index):
-                await ctx.send(f"Wrong proposal")
-                return
 
             proposal = spdr.second(prop_index)
             if "error" in proposal:

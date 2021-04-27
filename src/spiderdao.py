@@ -576,7 +576,9 @@ class SpiderDaoInterface:
                 }
         )
         
+        print("Vote call_ascii", str(call))
         substrate.close()
+
         #self.wait_for_finalization = True
         block_hash = self.submit_extrinsic(call)
         #self.wait_for_finalization = False
@@ -586,7 +588,8 @@ class SpiderDaoInterface:
         vote_ret["block_hash"] = block_hash
         vote_ret["vote"] = vote_value
         vote_ret["ref_index"] = ref_index
-
+        
+        print("Vote Return", vote_ret)
         return vote_ret
 
     #Get a Referendum data from chain metadata, map it with the Referendum in DB and return data in Json format

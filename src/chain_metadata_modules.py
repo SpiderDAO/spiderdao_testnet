@@ -21,9 +21,9 @@ chain_modules = {}
 
 dao_functions = {
     "transfer" : "Propose Transfer",
-    "propose_bounty" : "Custom Proposal",
-    "award_bounty" : "Custom Proposal",
+    "propose_bounty" : "Custom Proposal"
 }
+
 #Convert the chain modules json to a simpler format
 for d in data:
     if d["module_id"] not in modules_filt:
